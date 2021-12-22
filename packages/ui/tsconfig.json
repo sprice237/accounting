@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.build.web-package.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "$/*": ["./src/*"],
+      "$cmp": ["./src/components"],
+      "$cmp/*": ["./src/components/*"],
+      "$theme": ["./src/theme"],
+      "$theme/*": ["./src/theme/*"]
+    }
+  }
+}
