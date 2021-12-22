@@ -10,3 +10,4 @@
 #/.pnp.*
 
 .vscode/*
+.env
