@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.build.package.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "esnext",
+    "allowJs": true,
+    "isolatedModules": true,
+    "noEmit": true,
+  }
+}
