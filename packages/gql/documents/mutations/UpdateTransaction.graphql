@@ -1,0 +1,5 @@
+mutation UpdateTransactionItem($transactionItemId: ID!, $input: UpdateTransactionItemInput!) {
+  updateTransactionItem(transactionItemId: $transactionItemId, input: $input) {
+    ...TransactionItem
+  }
+}

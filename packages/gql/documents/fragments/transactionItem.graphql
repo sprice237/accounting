@@ -6,6 +6,8 @@ fragment TransactionItem on TransactionItem {
   transaction { 
     ...ShallowTransaction
   }
+  date
   amount
   type
+  description
 }

@@ -30,7 +30,10 @@ export abstract class BaseRepositoryWithDefaultActions<
     return modelObject;
   }
 
-  async update(modelId: Id, input: TInputModelObject): Promise<ModelObject<TModel> | undefined> {
+  async update(
+    modelId: Id,
+    input: Partial<TInputModelObject>
+  ): Promise<ModelObject<TModel> | undefined> {
     const model = (await this.ModelClass.query(this.uow.queryTarget).patchAndFetchById(
       modelId,
       input

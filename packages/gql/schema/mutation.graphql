@@ -2,4 +2,6 @@ type Mutation {
   createAccount(input: CreateAccountInput!): Account!
   createTransaction(input: CreateTransactionInput!): Transaction!
   createTransactionItem(input: CreateTransactionItemInput!): TransactionItem!
+  updateTransactionItem(transactionItemId: ID!, input: UpdateTransactionItemInput!): TransactionItem!
+  deleteTransactionItem(transactionItemId: ID!): Boolean!
 }

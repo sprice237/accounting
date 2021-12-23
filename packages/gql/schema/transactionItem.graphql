@@ -32,3 +32,11 @@ input CreateTransactionItemInput {
   amount: Money!
   description: String
 }
+
+input UpdateTransactionItemInput {
+  accountId: ID!
+  date: Date!
+  type: TransactionItemTypeEnum!
+  amount: Money!
+  description: String
+}

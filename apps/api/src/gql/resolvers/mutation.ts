@@ -66,4 +66,36 @@ export const resolvers: AppResolvers['Mutation'] = {
       type: transactionItem.type as TransactionItemTypeEnum,
     };
   },
+  async updateTransactionItem(_, { transactionItemId, input }) {
+    const uow = new UnitOfWork();
+
+    const transactionItem = await uow
+      .getRepo(TransactionItemsRepository)
+      .update(transactionItemId, {
+        ...input,
+        description: input.description ?? null,
+      });
+
+    if (!transactionItem) {
+      throw new Error('not found');
+    }
+
+    return {
+      ...transactionItem,
+      account: undefined!,
+      transaction: undefined!,
+      type: transactionItem.type as TransactionItemTypeEnum,
+    };
+  },
+  async deleteTransactionItem(_, { transactionItemId }) {
+    const uow = new UnitOfWork();
+
+    const transactionItem = await uow.getRepo(TransactionItemsRepository).delete(transactionItemId);
+
+    if (!transactionItem) {
+      throw new Error('not found');
+    }
+
+    return true;
+  },
 };

@@ -1,5 +1,6 @@
 fragment ShallowTransaction on Transaction {
   id
-  date
-  description
+  items {
+    ...ShallowTransactionItem
+  }
 }
