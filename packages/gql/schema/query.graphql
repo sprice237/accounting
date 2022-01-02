@@ -2,6 +2,7 @@ type Query {
   accounts: [Account!]!
   transactions: [Transaction!]!
   transactionItemsForAccount(input: TransactionItemsForAccountQueryInput!): [TransactionItem!]!
+  transactionItemsReportForAccount(input: TransactionItemsForAccountQueryInput!): TransactionItemsReport!
 }
 
 input TransactionItemsForAccountQueryInput {

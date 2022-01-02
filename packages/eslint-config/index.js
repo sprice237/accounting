@@ -40,10 +40,6 @@ module.exports = {
         patterns: ['../*']
       }
     ],
-    "quotes": [
-      "error",
-      "single"
-    ],
     "semi": [
       "error",
       "always"

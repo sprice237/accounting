@@ -1,0 +1,7 @@
+type TransactionItemsReport {
+  items: [TransactionItem!]!
+  sumDebits: Money!
+  sumCredits: Money!
+  priorSumDebits: Money!
+  priorSumCredits: Money!
+}

@@ -1,7 +1,8 @@
 import { VFC } from 'react';
+import formatDate from 'date-fns/format';
 import {
   TransactionItemTypeEnum,
-  useTransactionItemsForAccountQuery,
+  useTransactionItemsReportForAccountQuery,
   useCreateTransactionItemMutation,
   useUpdateTransactionItemMutation,
   useDeleteTransactionItemMutation,
@@ -19,8 +20,8 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
   startDate,
   endDate,
 }) => {
-  const { data: { transactionItemsForAccount: transactionItems } = {} } =
-    useTransactionItemsForAccountQuery({
+  const { data: { transactionItemsReportForAccount: transactionItemsReport } = {} } =
+    useTransactionItemsReportForAccountQuery({
       variables: {
         input: {
           accountId,
@@ -34,6 +35,10 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
   const [updateTransactionItem] = useUpdateTransactionItemMutation();
   const [deleteTransactionItem] = useDeleteTransactionItemMutation();
 
+  if (!transactionItemsReport) {
+    return null;
+  }
+
   return (
     <table>
       <thead>
@@ -46,16 +51,23 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
         </tr>
       </thead>
       <tbody>
-        {(transactionItems ?? []).map((transactionItem) => (
+        <tr>
+          <td>Starting balance</td>
+          <td>{transactionItemsReport.priorSumDebits.toFixed(2)}</td>
+          <td>{transactionItemsReport.priorSumCredits.toFixed(2)}</td>
+          <td />
+          <td />
+        </tr>
+        {transactionItemsReport.items.map((transactionItem) => (
           <tr key={transactionItem.id}>
-            <td>{transactionItem.date.toISOString()}</td>
+            <td>{formatDate(transactionItem.date, 'MM/dd/yyyy')}</td>
             <td>
               {transactionItem.type === TransactionItemTypeEnum.Debit &&
-                transactionItem.amount.toString()}
+                transactionItem.amount.toFixed(2)}
             </td>
             <td>
               {transactionItem.type === TransactionItemTypeEnum.Credit &&
-                transactionItem.amount.toString()}
+                transactionItem.amount.toFixed(2)}
             </td>
             <td>
               {(() => {
@@ -115,6 +127,19 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
             <td>{transactionItem.description}</td>
           </tr>
         ))}
+        <tr>
+          <td>Ending balance</td>
+          <td>
+            {transactionItemsReport.priorSumDebits.add(transactionItemsReport.sumDebits).toFixed(2)}
+          </td>
+          <td>
+            {transactionItemsReport.priorSumCredits
+              .add(transactionItemsReport.sumCredits)
+              .toFixed(2)}
+          </td>
+          <td />
+          <td />
+        </tr>
       </tbody>
     </table>
   );
