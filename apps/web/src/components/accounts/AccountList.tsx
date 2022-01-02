@@ -1,25 +1,32 @@
 import { VFC } from 'react';
 import { useAccountsQuery } from '@sprice237/accounting-gql';
 
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import { AccountListFooter } from './AccountListFooter';
+import { AccountListRow } from './AccountListRow';
+
 export const AccountList: VFC = () => {
   const { data: { accounts } = {} } = useAccountsQuery();
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Name</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>Name</TableCell>
+          <TableCell>Type</TableCell>
+          <TableCell />
+        </TableRow>
+      </TableHead>
+      <TableBody>
         {(accounts ?? []).map((account) => (
-          <tr key={account.id}>
-            <td>{account.id}</td>
-            <td>{account.name}</td>
-          </tr>
+          <AccountListRow key={account.id} account={account} />
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+      <AccountListFooter />
+    </Table>
   );
 };
