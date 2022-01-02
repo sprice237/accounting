@@ -27,6 +27,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:apps/api"
       },
       {
+        "name": "@sprice237/accounting-csv-importer",
+        "reference": "workspace:apps/csv-importer"
+      },
+      {
         "name": "@sprice237/accounting-web",
         "reference": "workspace:apps/web"
       },
@@ -6527,6 +6531,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
+      ["@sprice237/accounting-csv-importer", [
+        ["workspace:apps/csv-importer", {
+          "packageLocation": "./apps/csv-importer/",
+          "packageDependencies": [
+            ["@sprice237/accounting-csv-importer", "workspace:apps/csv-importer"],
+            ["@sprice237/accounting-db", "workspace:packages/db"],
+            ["@sprice237/accounting-eslint-config", "workspace:packages/eslint-config"],
+            ["@types/big.js", "npm:6.1.2"],
+            ["@types/node", "npm:16.4.13"],
+            ["@typescript-eslint/eslint-plugin", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:4.29.0"],
+            ["@typescript-eslint/parser", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:4.29.0"],
+            ["big.js", "npm:6.1.1"],
+            ["commander", "npm:8.3.0"],
+            ["csv", "npm:6.0.4"],
+            ["dotenv", "npm:10.0.0"],
+            ["eslint", "npm:7.32.0"],
+            ["eslint-config-prettier", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:8.3.0"],
+            ["eslint-plugin-prettier", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:4.0.0"],
+            ["prettier", "npm:2.3.2"],
+            ["rimraf", "npm:3.0.2"],
+            ["ts-node", "virtual:f9345def4fe49d2f88d837ce5e0160ce31279071027ead0cab5d1ea86d0ddc724d3c22adb4f72ae989844e795c3e825e02245f997600b11de010ae9b6c48d4c0#npm:10.2.0"],
+            ["ttypescript", "virtual:f9345def4fe49d2f88d837ce5e0160ce31279071027ead0cab5d1ea86d0ddc724d3c22adb4f72ae989844e795c3e825e02245f997600b11de010ae9b6c48d4c0#npm:1.5.12"],
+            ["typescript", "patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=493e53"],
+            ["typescript-transform-paths", "virtual:5518372ffa97c64ae7d1acce9bc3cd8caa35e828a285387263b4f4af519ae65faf108794e3de41d9709eb441c6e5e14bd372143ec65ea127d2f4a07d1035e000#npm:3.3.1"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["@sprice237/accounting-db", [
         ["workspace:packages/db", {
           "packageLocation": "./packages/db/",
@@ -11776,6 +11808,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["commander", "npm:6.2.1"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:8.3.0", {
+          "packageLocation": "./.yarn/cache/commander-npm-8.3.0-c0d18c66d5-0f82321821.zip/node_modules/commander/",
+          "packageDependencies": [
+            ["commander", "npm:8.3.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["common-tags", [
@@ -12707,6 +12746,46 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/csstype-npm-3.0.10-e26ef49bb2-20a8fa324f.zip/node_modules/csstype/",
           "packageDependencies": [
             ["csstype", "npm:3.0.10"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["csv", [
+        ["npm:6.0.4", {
+          "packageLocation": "./.yarn/cache/csv-npm-6.0.4-4fdbfd04f1-0bb561aeed.zip/node_modules/csv/",
+          "packageDependencies": [
+            ["csv", "npm:6.0.4"],
+            ["csv-generate", "npm:4.0.4"],
+            ["csv-parse", "npm:5.0.4"],
+            ["csv-stringify", "npm:6.0.5"],
+            ["stream-transform", "npm:3.0.4"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["csv-generate", [
+        ["npm:4.0.4", {
+          "packageLocation": "./.yarn/cache/csv-generate-npm-4.0.4-6d11b091e7-882fb8eb7d.zip/node_modules/csv-generate/",
+          "packageDependencies": [
+            ["csv-generate", "npm:4.0.4"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["csv-parse", [
+        ["npm:5.0.4", {
+          "packageLocation": "./.yarn/cache/csv-parse-npm-5.0.4-26376aa2f5-e38b4fb8de.zip/node_modules/csv-parse/",
+          "packageDependencies": [
+            ["csv-parse", "npm:5.0.4"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["csv-stringify", [
+        ["npm:6.0.5", {
+          "packageLocation": "./.yarn/cache/csv-stringify-npm-6.0.5-a55543a2be-a51c5af6a6.zip/node_modules/csv-stringify/",
+          "packageDependencies": [
+            ["csv-stringify", "npm:6.0.5"]
           ],
           "linkType": "HARD",
         }]
@@ -25214,6 +25293,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/stream-shift-npm-1.0.1-9526210fa7-59b82b44b2.zip/node_modules/stream-shift/",
           "packageDependencies": [
             ["stream-shift", "npm:1.0.1"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["stream-transform", [
+        ["npm:3.0.4", {
+          "packageLocation": "./.yarn/cache/stream-transform-npm-3.0.4-e9aaf25e43-06436fe1b2.zip/node_modules/stream-transform/",
+          "packageDependencies": [
+            ["stream-transform", "npm:3.0.4"]
           ],
           "linkType": "HARD",
         }]
