@@ -10,13 +10,23 @@ import { AccountSelect } from '$cmp/accounts/AccountSelect';
 
 export type TransactionsForAccountListProps = {
   accountId: string;
+  startDate?: Date;
+  endDate?: Date;
 };
 
-export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = ({ accountId }) => {
+export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = ({
+  accountId,
+  startDate,
+  endDate,
+}) => {
   const { data: { transactionItemsForAccount: transactionItems } = {} } =
     useTransactionItemsForAccountQuery({
       variables: {
-        accountId,
+        input: {
+          accountId,
+          startDate,
+          endDate,
+        },
       },
     });
 

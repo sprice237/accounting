@@ -1,5 +1,11 @@
 type Query {
   accounts: [Account!]!
   transactions: [Transaction!]!
-  transactionItemsForAccount(accountId: ID!): [TransactionItem!]!
+  transactionItemsForAccount(input: TransactionItemsForAccountQueryInput!): [TransactionItem!]!
+}
+
+input TransactionItemsForAccountQueryInput {
+  accountId: ID!
+  startDate: Date
+  endDate: Date
 }

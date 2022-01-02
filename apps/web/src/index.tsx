@@ -1,6 +1,8 @@
 import { StrictMode, VFC } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { StyleWrapper } from '@sprice237/accounting-ui';
 import { GqlProvider } from '@sprice237/accounting-gql';
 
@@ -21,17 +23,19 @@ const Root: VFC = () => {
 
   return (
     <StrictMode>
-      <GqlProvider
-        uri="http://localhost:8080/graphql"
-        schema={graphqlSchema}
-        portfolioId={portfolioId}
-      >
-        <StyleWrapper>
-          <Router>
-            <App />
-          </Router>
-        </StyleWrapper>
-      </GqlProvider>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <GqlProvider
+          uri="http://localhost:8080/graphql"
+          schema={graphqlSchema}
+          portfolioId={portfolioId}
+        >
+          <StyleWrapper>
+            <Router>
+              <App />
+            </Router>
+          </StyleWrapper>
+        </GqlProvider>
+      </LocalizationProvider>
     </StrictMode>
   );
 };

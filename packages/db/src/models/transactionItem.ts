@@ -1,6 +1,7 @@
 import Big from 'big.js';
-import { Pojo } from 'objection';
+import { Pojo, RelationMappings, RelationMappingsThunk } from 'objection';
 import { BaseModelWithTimestamps, ModelObjectWithoutTimestamps } from './baseModelWithTimestamps';
+import { TransactionModel } from './transaction';
 
 export type TransactionItemType = 'DEBIT' | 'CREDIT';
 
@@ -10,7 +11,7 @@ export class TransactionItemModel extends BaseModelWithTimestamps {
   override $parseDatabaseJson(json: Pojo): Pojo {
     return {
       ...super.$parseDatabaseJson(json),
-      amount: new Big(json['amount']),
+      amount: json['amount'] != null ? new Big(json['amount']) : json['amount'],
     };
   }
 
@@ -19,6 +20,19 @@ export class TransactionItemModel extends BaseModelWithTimestamps {
       ...super.$formatDatabaseJson(json),
       amount: json['amount'].toString(),
     };
+  }
+
+  static override get relationMappings(): RelationMappings | RelationMappingsThunk {
+    return () => ({
+      transaction: {
+        relation: BaseModelWithTimestamps.BelongsToOneRelation,
+        modelClass: TransactionModel,
+        join: {
+          from: 'transactionItems.transactionId',
+          to: 'transactions.id',
+        },
+      },
+    });
   }
 
   id!: string;

@@ -29,11 +29,11 @@ export const resolvers: AppResolvers['Query'] = {
       items: undefined!,
     }));
   },
-  async transactionItemsForAccount(_, { accountId }) {
+  async transactionItemsForAccount(_, { input: { accountId, startDate, endDate } }) {
     const uow = new UnitOfWork();
     const transactionItems = await uow
       .getRepo(TransactionItemsRepository)
-      .getAllForAccount(accountId);
+      .getAllForAccount(accountId, startDate ?? undefined, endDate ?? undefined);
     return transactionItems.map((transactionItem) => ({
       ...transactionItem,
       account: undefined!,

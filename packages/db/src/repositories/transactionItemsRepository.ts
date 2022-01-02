@@ -10,10 +10,24 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
     return TransactionItemModel;
   }
 
-  async getAllForAccount(accountId: string): Promise<ModelObject<TransactionItemModel>[]> {
-    const transactionItemModels = (await this.ModelClass.query(this.uow.queryTarget).where({
+  async getAllForAccount(
+    accountId: string,
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<ModelObject<TransactionItemModel>[]> {
+    let q = this.ModelClass.query(this.uow.queryTarget).where({
       accountId,
-    })) as TransactionItemModel[];
+    });
+
+    if (startDate) {
+      q = q.where('date', '>=', startDate);
+    }
+
+    if (endDate) {
+      q = q.where('date', '<', endDate);
+    }
+
+    const transactionItemModels = (await q) as TransactionItemModel[];
     const transactionItems = transactionItemModels.map(
       (transactionItemModel) => transactionItemModel.toJSON() as ModelObject<TransactionItemModel>
     );

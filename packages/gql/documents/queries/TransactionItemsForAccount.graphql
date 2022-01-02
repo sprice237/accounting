@@ -1,5 +1,5 @@
-query TransactionItemsForAccount($accountId: ID!) {
-  transactionItemsForAccount(accountId: $accountId) {
+query TransactionItemsForAccount($input: TransactionItemsForAccountQueryInput!) {
+  transactionItemsForAccount(input: $input) {
     ...TransactionItem
   }
 }
