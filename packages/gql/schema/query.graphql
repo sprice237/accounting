@@ -1,3 +1,5 @@
 type Query {
   accounts: [Account!]!
+  transactions: [Transaction!]!
+  transactionItemsForAccount(accountId: ID!): [TransactionItem!]!
 }

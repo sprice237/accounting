@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.build.package.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "paths": {
+      "$/*": ["./src/*"],
+      "$models": ["./src/models"],
+      "$models/*": ["./src/models/*"],
+      "$repositories": ["./src/repositories"],
+      "$repositories/*": ["./src/repositories/*"],
+    }
+  },
+  "include": [
+    "./src"
+  ]
+}

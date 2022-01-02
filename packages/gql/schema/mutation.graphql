@@ -1,0 +1,5 @@
+type Mutation {
+  createAccount(input: CreateAccountInput!): Account!
+  createTransaction(input: CreateTransactionInput!): Transaction!
+  createTransactionItem(input: CreateTransactionItemInput!): TransactionItem!
+}

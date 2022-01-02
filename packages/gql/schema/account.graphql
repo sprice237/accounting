@@ -1,4 +1,19 @@
+enum AccountTypeEnum {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
 type Account { 
   id: ID!
   name: String!
+  type: AccountTypeEnum!
+  createdAt: Date!
+}
+
+input CreateAccountInput {
+  name: String!
+  type: AccountTypeEnum!
 }

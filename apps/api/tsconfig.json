@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
+    "lib": ["ES2019"],
     "rootDir": "./src",
     "outDir": "./dist",
     "paths": {

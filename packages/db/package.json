@@ -1,0 +1,46 @@
+{
+  "name": "@sprice237/accounting-db",
+  "version": "0.1.0",
+  "author": "Sean Price <sean@seanprice.io>",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "ttsc",
+    "clean": "rimraf dist .tsbuildinfo",
+    "knex": "node --require dotenv/config $(yarn bin knex) --knexfile ./dist/knexfile.js",
+    "migrate:latest": "ttsc && node --require dotenv/config $(yarn bin knex) --knexfile ./dist/knexfile.js migrate:latest",
+    "migrate:rollback": "ttsc && node --require dotenv/config $(yarn bin knex) --knexfile ./dist/knexfile.js migrate:rollback",
+    "lint": "eslint --ext=ts,js,tsx,jsx src"
+  },
+  "dependencies": {
+    "big.js": "6.1.1",
+    "dotenv": "10.0.0",
+    "knex": "0.21.21",
+    "lodash": "4.17.21",
+    "objection": "2.2.16",
+    "pg": "8.7.1",
+    "tslib": "2.3.1"
+  },
+  "devDependencies": {
+    "@sprice237/accounting-eslint-config": "workspace:*",
+    "@types/big.js": "6.1.2",
+    "@types/lodash": "4.14.173",
+    "@types/node": "16.7.1",
+    "@typescript-eslint/eslint-plugin": "4.29.2",
+    "@typescript-eslint/parser": "4.29.2",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "prettier": "2.3.2",
+    "rimraf": "3.0.2",
+    "ts-node": "10.2.1",
+    "ttypescript": "1.5.12",
+    "typescript": "4.3.5",
+    "typescript-transform-paths": "3.3.1"
+  }
+}

@@ -1,0 +1,34 @@
+enum TransactionItemTypeEnum {
+  DEBIT
+  CREDIT
+}
+
+type TransactionItem {
+  id: ID!
+  transactionId: ID
+  transaction: Transaction
+  accountId: ID!
+  account: Account!
+  date: Date!
+  type: TransactionItemTypeEnum!
+  amount: Money!
+  description: String
+  createdAt: Date!
+}
+
+input CreateTransactionItemForTransactionInput {
+  accountId: ID!
+  date: Date!
+  type: TransactionItemTypeEnum!
+  amount: Money!
+  description: String
+}
+
+input CreateTransactionItemInput {
+  transactionId: ID
+  accountId: ID!
+  date: Date!
+  type: TransactionItemTypeEnum!
+  amount: Money!
+  description: String
+}

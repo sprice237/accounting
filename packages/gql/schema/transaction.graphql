@@ -1,0 +1,9 @@
+type Transaction {
+  id: ID!
+  items: [TransactionItem!]!
+  createdAt: Date!
+}
+
+input CreateTransactionInput {
+  items: [CreateTransactionItemForTransactionInput!]
+}

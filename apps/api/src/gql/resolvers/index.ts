@@ -1,18 +1,19 @@
-import { QueryResolvers } from '@sprice237/accounting-gql';
+import { Resolvers } from '@sprice237/accounting-gql';
+import type { PartialRequired } from '@sprice237/accounting-utils';
 
-export type AppResolversMap = {
-  Query: Required<QueryResolvers>;
-};
+import { Context } from '$gql/context';
+import { resolvers as Query } from './query';
+import { resolvers as Mutation } from './mutation';
+import { moneyScalarType as Money } from './money';
+import { resolvers as Transaction } from './transaction';
+import { resolvers as TransactionItem } from './transactionItem';
 
-export const resolvers: AppResolversMap = {
-  Query: {
-    async accounts() {
-      return [
-        {
-          id: '00000000-0000-0000-0000-000000000000',
-          name: 'Account 1',
-        },
-      ];
-    },
-  },
+export type AppResolvers = PartialRequired<Resolvers<Context>, 'Query' | 'Mutation' | 'Money'>;
+
+export const resolvers: AppResolvers = {
+  Query,
+  Mutation,
+  Money,
+  Transaction,
+  TransactionItem,
 };
