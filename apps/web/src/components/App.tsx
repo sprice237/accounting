@@ -1,11 +1,12 @@
 import { VFC } from 'react';
-import { GqlProvider } from '@sprice237/accounting-gql';
-import { AccountList } from './accounts/AccountList';
+import { AppRouter } from '$cmp/AppRouter';
+import { Sidebar } from '$cmp/nav/Sidebar';
 
 export const App: VFC = () => {
   return (
-    <GqlProvider uri="http://localhost:8080/graphql">
-      <AccountList />
-    </GqlProvider>
+    <div style={{ display: 'flex' }}>
+      <Sidebar />
+      <AppRouter />
+    </div>
   );
 };

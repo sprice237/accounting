@@ -1,0 +1,11 @@
+fragment TransactionItem on TransactionItem {
+  id
+  account {
+    ...Account
+  }
+  transaction { 
+    ...ShallowTransaction
+  }
+  amount
+  type
+}

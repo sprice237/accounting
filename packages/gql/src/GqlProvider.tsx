@@ -6,57 +6,57 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from '@apollo/client';
-import { createUploadLink } from 'apollo-upload-client';
 import { setContext } from '@apollo/client/link/context';
+import { withScalars } from 'apollo-link-scalars';
+import { createUploadLink } from 'apollo-upload-client';
+import { GraphQLSchema } from 'graphql';
 
-const buildLink = (uri: string, token: string | undefined, organizationId: string | undefined) =>
-  ApolloLink.concat(
+const buildLink = (uri: string, schema: GraphQLSchema, portfolioId: string | undefined) =>
+  ApolloLink.from([
+    withScalars({ schema }),
     setContext((_, prevContext) => ({
       ...prevContext,
       headers: {
         ...prevContext.headers,
-        ...(token ? { authorization: `Bearer ${token}` } : {}),
-        ...(organizationId ? { 'x-organization-id': organizationId } : {}),
+        ...(portfolioId ? { 'x-portfolio-id': portfolioId } : {}),
       },
     })),
     createUploadLink({
       uri,
-    })
-  );
+    }),
+  ]);
 
 export type GqlProviderProps = {
   uri: string;
-  token?: string;
-  organizationId?: string;
+  schema: GraphQLSchema;
+  portfolioId: string | undefined;
 };
 
-export const GqlProvider: FC<GqlProviderProps> = memo(
-  ({ uri, token, organizationId, children }) => {
-    const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | undefined>();
+export const GqlProvider: FC<GqlProviderProps> = memo(({ uri, schema, portfolioId, children }) => {
+  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | undefined>();
 
-    // initialize `client`
-    useEffect(() => {
-      setClient(
-        new ApolloClient({
-          cache: new InMemoryCache(),
-          link: buildLink(uri, token, organizationId),
-        })
-      );
-    }, []);
+  // initialize `client`
+  useEffect(() => {
+    setClient(
+      new ApolloClient({
+        cache: new InMemoryCache(),
+        link: buildLink(uri, schema, portfolioId),
+      })
+    );
+  }, [uri, schema]);
 
-    // update client link whenever uri, token, or organizationId changes
-    useEffect(() => {
-      if (!client) {
-        return;
-      }
-
-      client.setLink(buildLink(uri, token, organizationId));
-    }, [uri, token, organizationId]);
-
+  // update client link whenever uri, portfolioId changes
+  useEffect(() => {
     if (!client) {
-      return null;
+      return;
     }
 
-    return <ApolloProvider client={client}>{children}</ApolloProvider>;
+    client.setLink(buildLink(uri, schema, portfolioId));
+  }, [uri, schema]);
+
+  if (!client) {
+    return null;
   }
-);
+
+  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+});

@@ -1,0 +1,5 @@
+fragment ShallowTransaction on Transaction {
+  id
+  date
+  description
+}

@@ -1,0 +1,5 @@
+query TransactionItemsForAccount($accountId: ID!) {
+  transactionItemsForAccount(accountId: $accountId) {
+    ...TransactionItem
+  }
+}
