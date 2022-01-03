@@ -1,5 +1,5 @@
-mutation CreateTransactionItem($input: CreateTransactionItemInput!) {
-  createTransactionItem(input: $input) {
-    ...TransactionItem
+mutation CreateTransaction($input: CreateTransactionInput!) {
+  createTransaction(input: $input) {
+    ...ShallowTransaction
   }
 }

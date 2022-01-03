@@ -5,5 +5,9 @@ type Transaction {
 }
 
 input CreateTransactionInput {
-  items: [CreateTransactionItemForTransactionInput!]
+  items: [TransactionItemForTransactionInput!]!
+}
+
+input UpdateTransactionInput {
+  items: [TransactionItemForTransactionInput!]!
 }

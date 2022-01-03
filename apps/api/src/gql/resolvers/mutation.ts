@@ -36,13 +36,81 @@ export const resolvers: AppResolvers['Mutation'] = {
       });
 
       await Promise.all(
-        (items ?? []).map((item) =>
-          uow.getRepo(TransactionItemsRepository).create({
-            ...item,
-            transactionId: transaction.id,
-            description: item.description ?? null,
-          })
-        )
+        (items ?? []).map(({ id: itemId, ...item }) => {
+          if (!itemId) {
+            return uow.getRepo(TransactionItemsRepository).create({
+              ...item,
+              transactionId: transaction.id,
+              description: item.description ?? null,
+            });
+          } else {
+            return uow.getRepo(TransactionItemsRepository).update(itemId, {
+              ...item,
+              transactionId: transaction.id,
+              description: item.description ?? null,
+            });
+          }
+        })
+      );
+
+      return transaction;
+    });
+
+    return {
+      ...transaction,
+      items: undefined!,
+    };
+  },
+  async updateTransaction(_1, { transactionId, input }, { assertPortfolio }) {
+    const portfolio = assertPortfolio();
+
+    const { items, ...transactionInput } = input;
+
+    const uow = new UnitOfWork();
+
+    const transaction = await uow.executeTransaction(async () => {
+      const transaction = await uow.getRepo(TransactionsRepository).update(transactionId, {
+        ...transactionInput,
+        portfolioId: portfolio.id,
+      });
+
+      if (!transaction) {
+        throw Error('not found');
+      }
+
+      const existingTransactionItems = await uow
+        .getRepo(TransactionItemsRepository)
+        .getAllForTransaction(transaction.id);
+
+      await Promise.all(
+        items.map(({ id: itemId, ...item }) => {
+          if (!itemId) {
+            return uow.getRepo(TransactionItemsRepository).create({
+              ...item,
+              transactionId: transaction.id,
+              description: item.description ?? null,
+            });
+          } else {
+            return uow.getRepo(TransactionItemsRepository).update(itemId, {
+              ...item,
+              transactionId: transaction.id,
+              description: item.description ?? null,
+            });
+          }
+        })
+      );
+
+      const removedTransactionItems = existingTransactionItems.filter(
+        (existingTransactionItem) => !items.map(({ id }) => id).includes(existingTransactionItem.id)
+      );
+
+      await Promise.all(
+        removedTransactionItems.map(async (removedTransactionItem) => {
+          return uow.getRepo(TransactionItemsRepository).update(removedTransactionItem.id, {
+            ...removedTransactionItem,
+            transactionId: null,
+          });
+        })
       );
 
       return transaction;
@@ -57,6 +125,7 @@ export const resolvers: AppResolvers['Mutation'] = {
     const uow = new UnitOfWork();
     const transactionItem = await uow.getRepo(TransactionItemsRepository).create({
       ...input,
+      transactionId: input.transactionId ?? null,
       description: input.description ?? null,
     });
     return {

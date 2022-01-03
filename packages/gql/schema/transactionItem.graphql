@@ -16,7 +16,8 @@ type TransactionItem {
   createdAt: Date!
 }
 
-input CreateTransactionItemForTransactionInput {
+input TransactionItemForTransactionInput {
+  id: ID
   accountId: ID!
   date: Date!
   type: TransactionItemTypeEnum!

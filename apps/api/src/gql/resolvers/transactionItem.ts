@@ -19,12 +19,12 @@ export const resolvers: AppResolvers['TransactionItem'] = {
   },
   async transaction(transactionItem) {
     const uow = new UnitOfWork();
-    const transaction = await uow
-      .getRepo(TransactionsRepository)
-      .getById(transactionItem.transactionId);
+    const transaction = transactionItem.transactionId
+      ? await uow.getRepo(TransactionsRepository).getById(transactionItem.transactionId)
+      : undefined;
 
     if (!transaction) {
-      throw new Error('not found');
+      return null;
     }
 
     return {

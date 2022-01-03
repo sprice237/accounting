@@ -18,7 +18,7 @@ export class TransactionItemModel extends BaseModelWithTimestamps {
   override $formatDatabaseJson(json: Pojo): Pojo {
     return {
       ...super.$formatDatabaseJson(json),
-      amount: json['amount'].toString(),
+      amount: json['amount']?.toString() ?? null,
     };
   }
 

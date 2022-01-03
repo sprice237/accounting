@@ -1,5 +1,5 @@
-mutation UpdateTransactionItem($transactionItemId: ID!, $input: UpdateTransactionItemInput!) {
-  updateTransactionItem(transactionItemId: $transactionItemId, input: $input) {
-    ...TransactionItem
+mutation UpdateTransaction($transactionId: ID!, $input: UpdateTransactionInput!) {
+  updateTransaction(transactionId: $transactionId, input: $input) {
+    ...ShallowTransaction
   }
 }

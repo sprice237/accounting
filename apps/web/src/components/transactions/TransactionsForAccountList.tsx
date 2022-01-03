@@ -43,6 +43,7 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
           <TableCell>Credit</TableCell>
           <TableCell>Account</TableCell>
           <TableCell>Description</TableCell>
+          <TableCell />
         </TableRow>
       </TableHead>
       <TableBody>
@@ -50,6 +51,7 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
           <TableCell>Starting balance</TableCell>
           <TableCell>{transactionItemsReport.priorSumDebits.toFixed(2)}</TableCell>
           <TableCell>{transactionItemsReport.priorSumCredits.toFixed(2)}</TableCell>
+          <TableCell />
           <TableCell />
           <TableCell />
         </TableRow>
@@ -66,6 +68,7 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
               .add(transactionItemsReport.sumCredits)
               .toFixed(2)}
           </TableCell>
+          <TableCell />
           <TableCell />
           <TableCell />
         </TableRow>
