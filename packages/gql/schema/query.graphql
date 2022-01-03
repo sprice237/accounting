@@ -1,8 +1,12 @@
 type Query {
-  accounts: [Account!]!
+  accounts(input: AccountsQueryInput): [Account!]!
   transactions: [Transaction!]!
   transactionItemsForAccount(input: TransactionItemsForAccountQueryInput!): [TransactionItem!]!
   transactionItemsReportForAccount(input: TransactionItemsForAccountQueryInput!): TransactionItemsReport!
+}
+
+input AccountsQueryInput {
+  types: [AccountTypeEnum!]
 }
 
 input TransactionItemsForAccountQueryInput {

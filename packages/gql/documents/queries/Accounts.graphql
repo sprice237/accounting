@@ -1,0 +1,5 @@
+query Accounts($input: AccountsQueryInput) {
+  accounts(input: $input) {
+    ...Account
+  }
+}

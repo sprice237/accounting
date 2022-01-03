@@ -10,11 +10,13 @@ import {
 import { AppResolvers } from '.';
 
 export const resolvers: AppResolvers['Query'] = {
-  async accounts(_1, _2, { assertPortfolio }) {
+  async accounts(_1, { input }, { assertPortfolio }) {
     const portfolio = assertPortfolio();
 
+    const types = input?.types ?? undefined;
+
     const uow = new UnitOfWork();
-    const accounts = await uow.getRepo(AccountsRepository).getAllForPortfolio(portfolio.id);
+    const accounts = await uow.getRepo(AccountsRepository).getAllForPortfolio(portfolio.id, types);
     return accounts.map((account) => ({
       ...account,
       type: account.type as AccountTypeEnum,
