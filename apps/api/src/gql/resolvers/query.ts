@@ -8,6 +8,8 @@ import {
 } from '@sprice237/accounting-db';
 
 import { AppResolvers } from '.';
+import { BalanceSheetReportGenerator } from '$/reports/BalanceSheetReportGenerator';
+import { ProfitAndLossReportGenerator } from '$/reports/ProfitAndLossReportGenerator';
 
 export const resolvers: AppResolvers['Query'] = {
   async accounts(_1, { input }, { assertPortfolio }) {
@@ -71,6 +73,69 @@ export const resolvers: AppResolvers['Query'] = {
       sumCredits,
       priorSumDebits,
       priorSumCredits,
+    };
+  },
+  async balanceSheetReport(_1, { input: { reportDate } }, { assertPortfolio }) {
+    const portfolio = assertPortfolio();
+
+    const reportGenerator = new BalanceSheetReportGenerator(portfolio.id, reportDate);
+    const balanceSheetReport = await reportGenerator.generateReport();
+
+    return {
+      ...balanceSheetReport,
+      assets: {
+        ...balanceSheetReport.assets,
+        accounts: balanceSheetReport.assets.accounts.map((accountItem) => ({
+          ...accountItem,
+          account: null!,
+        })),
+      },
+      liabilities: {
+        ...balanceSheetReport.liabilities,
+        accounts: balanceSheetReport.liabilities.accounts.map((accountItem) => ({
+          ...accountItem,
+          account: null!,
+        })),
+      },
+      equity: {
+        ...balanceSheetReport.equity,
+        accounts: balanceSheetReport.equity.accounts.map((accountItem) => ({
+          ...accountItem,
+          account: null!,
+        })),
+      },
+    };
+  },
+  async profitAndLossReport(
+    _1,
+    { input: { reportStartDate, reportEndDate } },
+    { assertPortfolio }
+  ) {
+    const portfolio = assertPortfolio();
+
+    const reportGenerator = new ProfitAndLossReportGenerator(
+      portfolio.id,
+      reportStartDate,
+      reportEndDate
+    );
+    const profitAndLossReport = await reportGenerator.generateReport();
+
+    return {
+      ...profitAndLossReport,
+      income: {
+        ...profitAndLossReport.income,
+        accounts: profitAndLossReport.income.accounts.map((accountItem) => ({
+          ...accountItem,
+          account: null!,
+        })),
+      },
+      expenses: {
+        ...profitAndLossReport.expenses,
+        accounts: profitAndLossReport.expenses.accounts.map((accountItem) => ({
+          ...accountItem,
+          account: null!,
+        })),
+      },
     };
   },
 };

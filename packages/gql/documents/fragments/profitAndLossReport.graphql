@@ -1,0 +1,23 @@
+fragment ProfitAndLossReport on ProfitAndLossReport {
+  netProfit
+  income {
+    totalBalance
+    accounts {
+      account {
+        id
+        name
+      }
+      balance
+    }
+  }
+  expenses {
+    totalBalance
+    accounts {
+      account {
+        id
+        name
+      }
+      balance
+    }
+  }
+}

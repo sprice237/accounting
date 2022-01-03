@@ -1,0 +1,34 @@
+fragment BalanceSheetReport on BalanceSheetReport {
+  assets {
+    totalBalance
+    accounts {
+      account {
+        id
+        name
+      }
+      balance
+    }
+  }
+  liabilities {
+    totalBalance
+    accounts {
+      account {
+        id
+        name
+      }
+      balance
+    }
+  }
+  equity {
+    totalBalance
+    netProfit
+    unbalancedTransactionsTotal
+    accounts {
+      account {
+        id
+        name
+      }
+      balance
+    }
+  }
+}

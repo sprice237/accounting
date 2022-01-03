@@ -3,6 +3,8 @@ type Query {
   transactions: [Transaction!]!
   transactionItemsForAccount(input: TransactionItemsForAccountQueryInput!): [TransactionItem!]!
   transactionItemsReportForAccount(input: TransactionItemsForAccountQueryInput!): TransactionItemsReport!
+  balanceSheetReport(input: BalanceSheetReportInput!): BalanceSheetReport!
+  profitAndLossReport(input: ProfitAndLossReportInput!): ProfitAndLossReport!
 }
 
 input AccountsQueryInput {

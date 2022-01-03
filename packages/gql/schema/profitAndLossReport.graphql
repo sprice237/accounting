@@ -1,0 +1,21 @@
+input ProfitAndLossReportInput {
+  reportStartDate: Date!
+  reportEndDate: Date!
+}
+
+type ProfitAndLossReport {
+  netProfit: Money!
+  income: ProfitAndLossReportLineItem!
+  expenses: ProfitAndLossReportLineItem!
+}
+
+type ProfitAndLossReportLineItem {
+  totalBalance: Money!
+  accounts: [ProfitAndLossReportAccount!]!
+}
+
+type ProfitAndLossReportAccount {
+  accountId: ID!
+  account: Account!
+  balance: Money!
+}

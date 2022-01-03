@@ -1,0 +1,5 @@
+query BalanceSheetReport($input: BalanceSheetReportInput!) {
+  balanceSheetReport(input: $input) {
+    ...BalanceSheetReport
+  }
+}

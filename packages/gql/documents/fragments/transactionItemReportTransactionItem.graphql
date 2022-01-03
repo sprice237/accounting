@@ -1,0 +1,14 @@
+fragment TransactionItemsReportTransactionItem on TransactionItemsReportTransactionItem {
+  id
+  account {
+    ...Account
+  }
+  transaction { 
+    ...ShallowTransaction
+  }
+  date
+  amount
+  runningBalance
+  type
+  description
+}

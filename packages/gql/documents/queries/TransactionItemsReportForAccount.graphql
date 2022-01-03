@@ -1,7 +1,7 @@
 query TransactionItemsReportForAccount($input: TransactionItemsForAccountQueryInput!) {
   transactionItemsReportForAccount(input: $input) {
     items {
-      ...TransactionItem
+      ...TransactionItemsReportTransactionItem
     }
     sumDebits
     sumCredits

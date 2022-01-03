@@ -1,7 +1,21 @@
 type TransactionItemsReport {
-  items: [TransactionItem!]!
+  items: [TransactionItemsReportTransactionItem!]!
   sumDebits: Money!
   sumCredits: Money!
   priorSumDebits: Money!
   priorSumCredits: Money!
+}
+
+type TransactionItemsReportTransactionItem {
+  id: ID!
+  transactionId: ID
+  transaction: Transaction
+  accountId: ID!
+  account: Account!
+  date: Date!
+  type: TransactionItemTypeEnum!
+  amount: Money!
+  runningBalance: Money!
+  description: String
+  createdAt: Date!
 }

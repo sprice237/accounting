@@ -4,7 +4,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import {
   TransactionItemTypeEnum,
-  TransactionItemFragment,
+  TransactionItemsReportTransactionItemFragment,
   useDeleteTransactionItemMutation,
 } from '@sprice237/accounting-gql';
 import { Button, useFlagState } from '@sprice237/accounting-ui';
@@ -12,7 +12,7 @@ import { Button, useFlagState } from '@sprice237/accounting-ui';
 import { TransactionEditorModal, TransactionEditorModel } from './editor';
 
 export type TransactionItemRowProps = {
-  transactionItem: TransactionItemFragment;
+  transactionItem: TransactionItemsReportTransactionItemFragment;
 };
 
 export const TransactionItemRow: VFC<TransactionItemRowProps> = ({ transactionItem }) => {
@@ -79,6 +79,7 @@ export const TransactionItemRow: VFC<TransactionItemRowProps> = ({ transactionIt
           {transactionItem.type === TransactionItemTypeEnum.Credit &&
             transactionItem.amount.toFixed(2)}
         </TableCell>
+        <TableCell>{transactionItem.runningBalance.toFixed(2)}</TableCell>
         <TableCell>
           {(() => {
             const otherTransactionItems =

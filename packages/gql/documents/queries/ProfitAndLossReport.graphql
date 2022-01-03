@@ -1,0 +1,5 @@
+query ProfitAndLossReport($input: ProfitAndLossReportInput!) {
+  profitAndLossReport(input: $input) {
+    ...ProfitAndLossReport
+  }
+}

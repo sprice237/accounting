@@ -1,0 +1,27 @@
+input BalanceSheetReportInput {
+  reportDate: Date!
+}
+
+type BalanceSheetReport {
+  assets: BalanceSheetReportLineItem!
+  liabilities: BalanceSheetReportLineItem!
+  equity: BalanceSheetReportEquityLineItem!
+}
+
+type BalanceSheetReportLineItem {
+  totalBalance: Money!
+  accounts: [BalanceSheetReportAccount!]!
+}
+
+type BalanceSheetReportEquityLineItem {
+  totalBalance: Money!
+  unbalancedTransactionsTotal: Money!
+  netProfit: Money!
+  accounts: [BalanceSheetReportAccount!]!
+}
+
+type BalanceSheetReportAccount {
+  accountId: ID!
+  account: Account!
+  balance: Money!
+}
