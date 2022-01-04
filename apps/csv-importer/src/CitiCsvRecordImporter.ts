@@ -9,7 +9,7 @@ import {
   UnitOfWork,
 } from '@sprice237/accounting-db';
 
-export class CsvRecordImporter {
+export class CitiCsvRecordImporter {
   private uow = new UnitOfWork();
 
   constructor(private readonly filePath: string, private readonly accountId: string) {}
@@ -21,8 +21,8 @@ export class CsvRecordImporter {
       throw new Error('account not found');
     }
 
-    if (account.type !== 'ASSET') {
-      throw new Error('only asset accounts are supported');
+    if (account.type !== 'LIABILITY') {
+      throw new Error('only liability accounts are supported');
     }
 
     const stream = createReadStream(this.filePath);
@@ -52,11 +52,11 @@ export class CsvRecordImporter {
 
     if (
       headerRow.length !== 5 ||
-      headerRow[0]?.trim() !== 'Date' ||
-      headerRow[1]?.trim() !== 'Time' ||
-      headerRow[2]?.trim() !== 'Amount' ||
-      headerRow[3]?.trim() !== 'Type' ||
-      headerRow[4]?.trim() !== 'Description'
+      headerRow[0]?.trim() !== 'Status' ||
+      headerRow[1]?.trim() !== 'Date' ||
+      headerRow[2]?.trim() !== 'Description' ||
+      headerRow[3]?.trim() !== 'Debit' ||
+      headerRow[4]?.trim() !== 'Credit'
     ) {
       throw new Error('invalid csv format');
     }
@@ -66,7 +66,7 @@ export class CsvRecordImporter {
         throw new Error(`invalid data encountered at row ${dataRowIndex + 2}`);
       }
 
-      const [dateStr, timeStr, amountStr, type, description] = dataRow as [
+      const [, dateStr, description, debitStr, creditStr] = dataRow as [
         string,
         string,
         string,
@@ -74,10 +74,13 @@ export class CsvRecordImporter {
         string
       ];
 
-      const dateTimeStr = `${dateStr}T${timeStr}Z`;
+      const [month, day, year] = dateStr.split('/');
+      const dateTimeStr = `${year}-${month}-${day}T12:00:00Z`;
       const date = new Date(dateTimeStr);
-      const transactionType = type === 'Withdrawal' ? 'CREDIT' : 'DEBIT';
-      const amount = Big(amountStr).mul(type === 'Withdrawal' ? -1 : 1);
+
+      // in the CSV, debit and credit are used in opposite of a liability account
+      const transactionType = creditStr !== '' ? 'DEBIT' : 'CREDIT';
+      const amount = creditStr !== '' ? Big(creditStr).mul(-1) : Big(debitStr);
 
       const transactionItemCreateInput: Omit<TransactionItem, 'id'> = {
         accountId: this.accountId,
