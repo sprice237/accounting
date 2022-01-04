@@ -17,8 +17,10 @@
     "migrate:rollback": "ttsc && node --require dotenv/config $(yarn bin knex) --knexfile ./dist/knexfile.js migrate:rollback",
     "lint": "eslint --ext=ts,js,tsx,jsx src"
   },
+  "peerDependencies": {
+    "big.js": "6.1.1"
+  },
   "dependencies": {
-    "big.js": "6.1.1",
     "dotenv": "10.0.0",
     "knex": "0.21.21",
     "lodash": "4.17.21",
@@ -31,6 +33,7 @@
     "@types/big.js": "6.1.2",
     "@types/lodash": "4.14.173",
     "@types/node": "16.7.1",
+    "@types/pg": "8.6.3",
     "@typescript-eslint/eslint-plugin": "4.29.2",
     "@typescript-eslint/parser": "4.29.2",
     "eslint": "7.32.0",
