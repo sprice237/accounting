@@ -3,9 +3,9 @@ import Card from '@mui/material/Card';
 import TextField from '@mui/material/TextField';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 import { AccountSelect } from '$cmp/accounts/AccountSelect';
-import { TransactionsForAccountList } from '$cmp/transactions/TransactionsForAccountList';
+import { LedgerReportDataTable } from './LedgerReportDataTable';
 
-export const TransactionsRoute: VFC = () => {
+export const LedgerReport: VFC = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -28,7 +28,7 @@ export const TransactionsRoute: VFC = () => {
         renderInput={(params) => <TextField {...params} />}
       />
       {selectedAccountId && (
-        <TransactionsForAccountList
+        <LedgerReportDataTable
           accountId={selectedAccountId}
           startDate={startDate ?? undefined}
           endDate={endDate ?? undefined}

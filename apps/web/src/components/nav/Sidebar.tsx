@@ -9,6 +9,7 @@ export const Sidebar: VFC = () => {
       <UISidebar.Section>Reports</UISidebar.Section>
       <UISidebar.Link name="Balance sheet" to="/reports/balance-sheet" />
       <UISidebar.Link name="Profit and loss" to="/reports/profit-and-loss" />
+      <UISidebar.Link name="Ledger" to="/reports/ledger" />
     </UISidebar.Wrapper>
   );
 };

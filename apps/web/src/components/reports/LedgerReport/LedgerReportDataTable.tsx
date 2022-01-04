@@ -6,15 +6,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { useTransactionItemsReportForAccountQuery } from '@sprice237/accounting-gql';
 
-import { TransactionItemRow } from './TransactionItemRow';
+import { LedgerReportDataRow } from './LedgerReportDataRow';
 
-export type TransactionsForAccountListProps = {
+export type LedgerReportDataTableProps = {
   accountId: string;
   startDate?: Date;
   endDate?: Date;
 };
 
-export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = ({
+export const LedgerReportDataTable: VFC<LedgerReportDataTableProps> = ({
   accountId,
   startDate,
   endDate,
@@ -62,7 +62,7 @@ export const TransactionsForAccountList: VFC<TransactionsForAccountListProps> = 
           <TableCell />
         </TableRow>
         {transactionItemsReport.items.map((transactionItem) => (
-          <TransactionItemRow key={transactionItem.id} transactionItem={transactionItem} />
+          <LedgerReportDataRow key={transactionItem.id} transactionItem={transactionItem} />
         ))}
         <TableRow>
           <TableCell>Ending balance</TableCell>

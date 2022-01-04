@@ -9,13 +9,13 @@ import {
 } from '@sprice237/accounting-gql';
 import { Button, useFlagState } from '@sprice237/accounting-ui';
 
-import { TransactionEditorModal, TransactionEditorModel } from './editor';
+import { TransactionEditorModal, TransactionEditorModel } from '$cmp/transactions/editor';
 
-export type TransactionItemRowProps = {
+export type LedgerReportDataRowProps = {
   transactionItem: TransactionItemsReportTransactionItemFragment;
 };
 
-export const TransactionItemRow: VFC<TransactionItemRowProps> = ({ transactionItem }) => {
+export const LedgerReportDataRow: VFC<LedgerReportDataRowProps> = ({ transactionItem }) => {
   const [deleteTransactionItem] = useDeleteTransactionItemMutation();
 
   const [isEditorModalVisible, showEditorModal, hideEditorModal] = useFlagState();
