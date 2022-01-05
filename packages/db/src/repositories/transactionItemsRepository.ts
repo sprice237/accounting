@@ -1,5 +1,5 @@
 import { ModelObject } from 'objection';
-import { AccountModel, TransactionItemModel } from '$models';
+import { AccountModel, AccountType, TransactionItemModel } from '$models';
 import { BaseRepositoryWithDefaultActions } from './baseRepositoryWithDefaultActions';
 import Big from 'big.js';
 
@@ -9,6 +9,51 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
 > {
   get ModelClass(): typeof TransactionItemModel {
     return TransactionItemModel;
+  }
+
+  async getAllForPortfolio(
+    portfolioId: string,
+    pagination: { pageSize: number; pageToken: string | undefined },
+    filters?: { accountTypes?: AccountType[]; startDate?: Date; endDate?: Date }
+  ): Promise<ModelObject<TransactionItemModel>[]> {
+    let q = TransactionItemModel.query(this.uow.queryTarget)
+      .whereIn(
+        'accountId',
+        AccountModel.query(this.uow.queryTarget).where({ portfolioId }).select('id')
+      )
+      .orderBy([{ column: 'date', order: 'DESC' }, 'id'])
+      .limit(pagination.pageSize);
+
+    if (pagination.pageToken) {
+      const [dateIso, transactionItemId] = pagination.pageToken.split('|') as [string, string];
+      q = q.where(function () {
+        this.where('date', '<', dateIso).orWhere(function () {
+          this.where('date', '=', dateIso).andWhere('id', '>', transactionItemId);
+        });
+      });
+    }
+
+    if (filters?.accountTypes) {
+      q = q.whereIn(
+        'accountId',
+        AccountModel.query(this.uow.queryTarget)
+          .where({ portfolioId })
+          .whereIn('type', filters.accountTypes)
+          .select('id')
+      );
+    }
+
+    if (filters?.startDate) {
+      q = q.where('date', '>=', filters.startDate);
+    }
+
+    if (filters?.endDate) {
+      q = q.where('date', '>=', filters.endDate);
+    }
+
+    const transactionItemModels = await q;
+    const transactionItems = transactionItemModels.map((model) => model.toJSON());
+    return transactionItems;
   }
 
   async getAllForAccount(

@@ -3,6 +3,11 @@ enum TransactionItemTypeEnum {
   CREDIT
 }
 
+type TransactionItemsResult {
+  transactionItems: [TransactionItem!]!
+  nextPageToken: String
+}
+
 type TransactionItem {
   id: ID!
   transactionId: ID
@@ -40,4 +45,11 @@ input UpdateTransactionItemInput {
   type: TransactionItemTypeEnum!
   amount: Money!
   description: String
+}
+
+input TransactionItemsQueryInput {
+  startDate: Date
+  endDate: Date
+  pageSize: Int!
+  pageToken: String
 }

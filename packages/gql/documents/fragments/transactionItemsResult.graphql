@@ -1,0 +1,6 @@
+fragment TransactionItemsResult on TransactionItemsResult {
+  transactionItems {
+    ...TransactionItem
+  }
+  nextPageToken
+}

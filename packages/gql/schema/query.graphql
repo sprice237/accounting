@@ -1,6 +1,7 @@
 type Query {
   accounts(input: AccountsQueryInput): [Account!]!
   transactions: [Transaction!]!
+  transactionItems(input: TransactionItemsQueryInput!): TransactionItemsResult!
   transactionItemsForAccount(input: TransactionItemsForAccountQueryInput!): [TransactionItem!]!
   transactionItemsReportForAccount(input: TransactionItemsForAccountQueryInput!): TransactionItemsReport!
   balanceSheetReport(input: BalanceSheetReportInput!): BalanceSheetReport!

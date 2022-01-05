@@ -39,7 +39,25 @@ export const GqlProvider: FC<GqlProviderProps> = memo(({ uri, schema, portfolioI
   useEffect(() => {
     setClient(
       new ApolloClient({
-        cache: new InMemoryCache(),
+        cache: new InMemoryCache({
+          typePolicies: {
+            Query: {
+              fields: {
+                transactionItems: {
+                  keyArgs: ['input', ['startDate', 'endDate', 'pageSize']],
+                  merge: (existing, incoming) => ({
+                    ...(existing ?? {}),
+                    ...incoming,
+                    transactionItems: [
+                      ...(existing?.transactionItems ?? []),
+                      ...incoming.transactionItems,
+                    ],
+                  }),
+                },
+              },
+            },
+          },
+        }),
         link: buildLink(uri, schema, portfolioId),
       })
     );

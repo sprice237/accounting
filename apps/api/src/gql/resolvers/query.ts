@@ -34,6 +34,39 @@ export const resolvers: AppResolvers['Query'] = {
       items: undefined!,
     }));
   },
+  async transactionItems(
+    _,
+    { input: { startDate, endDate, pageSize, pageToken } },
+    { assertPortfolio }
+  ) {
+    const { id: portfolioId } = assertPortfolio();
+
+    const uow = new UnitOfWork();
+    const transactionItems = await uow.getRepo(TransactionItemsRepository).getAllForPortfolio(
+      portfolioId,
+      { pageSize, pageToken: pageToken ?? undefined },
+      {
+        accountTypes: ['ASSET', 'LIABILITY'],
+        startDate: startDate ?? undefined,
+        endDate: endDate ?? undefined,
+      }
+    );
+
+    const lastTransactionItem = transactionItems[transactionItems.length - 1];
+    const nextPageToken = lastTransactionItem
+      ? `${lastTransactionItem.date.toISOString()}|${lastTransactionItem.id}`
+      : undefined;
+
+    return {
+      transactionItems: transactionItems.map((transactionItem) => ({
+        ...transactionItem,
+        account: undefined!,
+        transaction: undefined!,
+        type: transactionItem.type as TransactionItemTypeEnum,
+      })),
+      nextPageToken,
+    };
+  },
   async transactionItemsForAccount(_, { input: { accountId, startDate, endDate } }) {
     const uow = new UnitOfWork();
     const transactionItems = await uow

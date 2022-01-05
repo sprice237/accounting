@@ -4,6 +4,7 @@ import { AccountsRoute } from '$routes/AccountsRoute';
 import { BalanceSheetReportRoute } from '$routes/reports/BalanceSheetReportRoute';
 import { LedgerReportRoute } from '$routes/reports/LedgerReportRoute';
 import { ProfitAndLossReportRoute } from '$routes/reports/ProfitAndLossReportRoute';
+import { TransactionsListRoute } from './routes/TransactionsListRoute';
 
 export const AppRouter: VFC = () => {
   return (
@@ -15,6 +16,7 @@ export const AppRouter: VFC = () => {
       <Route exact path="/reports/balance-sheet" component={BalanceSheetReportRoute} />
       <Route exact path="/reports/ledger" component={LedgerReportRoute} />
       <Route exact path="/reports/profit-and-loss" component={ProfitAndLossReportRoute} />
+      <Route exact path="/transactions" component={TransactionsListRoute} />
       <Redirect to="/" />
     </Switch>
   );
