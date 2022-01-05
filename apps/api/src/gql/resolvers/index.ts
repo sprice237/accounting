@@ -6,6 +6,7 @@ import { resolvers as Query } from './query';
 import { resolvers as Mutation } from './mutation';
 import { dateScalarType as Date } from './date';
 import { moneyScalarType as Money } from './money';
+import { resolvers as Account } from './account';
 import { resolvers as BalanceSheetReportAccount } from './balanceSheetReportAccount';
 import { resolvers as ProfitAndLossReportAccount } from './profitAndLossReportAccount';
 import { resolvers as Transaction } from './transaction';
@@ -17,6 +18,7 @@ export type AppResolvers = PartialRequired<Resolvers<Context>, 'Query' | 'Mutati
 export const resolvers: AppResolvers = {
   Query,
   Mutation,
+  Account,
   BalanceSheetReportAccount,
   ProfitAndLossReportAccount,
   Date,

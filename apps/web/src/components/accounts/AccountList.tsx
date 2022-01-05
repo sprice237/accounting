@@ -1,5 +1,5 @@
 import { VFC } from 'react';
-import { useAccountsQuery, AccountTypeEnum } from '@sprice237/accounting-gql';
+import { AccountTypeEnum } from '@sprice237/accounting-gql';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -8,21 +8,13 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { AccountListFooter } from './AccountListFooter';
-import { AccountListRow } from './AccountListRow';
+import { AccountListRows } from './AccountListRows';
 
-type AccountList = {
+type AccountListProps = {
   accountType: AccountTypeEnum;
 };
 
-export const AccountList: VFC<AccountList> = ({ accountType }) => {
-  const { data: { accounts } = {} } = useAccountsQuery({
-    variables: {
-      input: {
-        types: [accountType],
-      },
-    },
-  });
-
+export const AccountList: VFC<AccountListProps> = ({ accountType }) => {
   return (
     <Card>
       <Table>
@@ -33,9 +25,7 @@ export const AccountList: VFC<AccountList> = ({ accountType }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {(accounts ?? []).map((account) => (
-            <AccountListRow key={account.id} account={account} />
-          ))}
+          <AccountListRows accountType={accountType} parentAccountId={null} />
         </TableBody>
         <AccountListFooter accountType={accountType} />
       </Table>

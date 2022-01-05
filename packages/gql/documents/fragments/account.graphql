@@ -2,4 +2,7 @@ fragment Account on Account {
   id
   name
   type
+  parent {
+    id
+  }
 }

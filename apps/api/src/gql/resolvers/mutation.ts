@@ -4,9 +4,11 @@ import {
   TransactionsRepository,
   TransactionItemsRepository,
   UnitOfWork,
+  AccountRelationshipsRepository,
 } from '@sprice237/accounting-db';
 
 import { AppResolvers } from '.';
+import { ForbiddenError } from 'apollo-server-express';
 
 export const resolvers: AppResolvers['Mutation'] = {
   async createAccount(_, { input }, { assertPortfolio }) {
@@ -21,6 +23,28 @@ export const resolvers: AppResolvers['Mutation'] = {
       ...account,
       type: account.type as AccountTypeEnum,
     };
+  },
+  async setAccountParent(_, { accountId, parentAccountId }, { assertPortfolio }) {
+    const { id: portfolioId } = assertPortfolio();
+
+    const uow = new UnitOfWork();
+    const account = await uow.getRepo(AccountsRepository).getById(accountId);
+    if (account?.portfolioId !== portfolioId) {
+      throw new ForbiddenError('Account not found');
+    }
+
+    await uow.executeTransaction(async () => {
+      await uow.getRepo(AccountRelationshipsRepository).delete(accountId);
+
+      if (parentAccountId) {
+        await uow.getRepo(AccountRelationshipsRepository).create({
+          accountId,
+          parentAccountId,
+        });
+      }
+    });
+
+    return true;
   },
   async createTransaction(_1, { input }, { assertPortfolio }) {
     const portfolio = assertPortfolio();

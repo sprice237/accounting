@@ -1,0 +1,3 @@
+mutation SetAccountParent($accountId: ID!, $parentAccountId: ID) {
+  setAccountParent(accountId: $accountId, parentAccountId: $parentAccountId) 
+}

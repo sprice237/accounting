@@ -10,6 +10,7 @@ type Account {
   id: ID!
   name: String!
   type: AccountTypeEnum!
+  parent: Account
   createdAt: Date!
 }
 

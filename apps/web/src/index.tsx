@@ -1,4 +1,6 @@
 import { StrictMode, VFC } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
@@ -23,19 +25,21 @@ const Root: VFC = () => {
 
   return (
     <StrictMode>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <GqlProvider
-          uri="http://localhost:8080/graphql"
-          schema={graphqlSchema}
-          portfolioId={portfolioId}
-        >
-          <StyleWrapper>
-            <Router>
-              <App />
-            </Router>
-          </StyleWrapper>
-        </GqlProvider>
-      </LocalizationProvider>
+      <DndProvider backend={HTML5Backend}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <GqlProvider
+            uri="http://localhost:8080/graphql"
+            schema={graphqlSchema}
+            portfolioId={portfolioId}
+          >
+            <StyleWrapper>
+              <Router>
+                <App />
+              </Router>
+            </StyleWrapper>
+          </GqlProvider>
+        </LocalizationProvider>
+      </DndProvider>
     </StrictMode>
   );
 };
