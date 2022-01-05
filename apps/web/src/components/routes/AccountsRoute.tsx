@@ -1,11 +1,6 @@
 import { VFC } from 'react';
-import Card from '@mui/material/Card';
-import { AccountList } from '$cmp/accounts/AccountList';
+import { AccountListsByType } from '$cmp/accounts/AccountListsByType';
 
 export const AccountsRoute: VFC = () => {
-  return (
-    <Card>
-      <AccountList />
-    </Card>
-  );
+  return <AccountListsByType />;
 };

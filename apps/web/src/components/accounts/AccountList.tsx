@@ -1,6 +1,7 @@
 import { VFC } from 'react';
-import { useAccountsQuery } from '@sprice237/accounting-gql';
+import { useAccountsQuery, AccountTypeEnum } from '@sprice237/accounting-gql';
 
+import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,24 +10,35 @@ import TableRow from '@mui/material/TableRow';
 import { AccountListFooter } from './AccountListFooter';
 import { AccountListRow } from './AccountListRow';
 
-export const AccountList: VFC = () => {
-  const { data: { accounts } = {} } = useAccountsQuery();
+type AccountList = {
+  accountType: AccountTypeEnum;
+};
+
+export const AccountList: VFC<AccountList> = ({ accountType }) => {
+  const { data: { accounts } = {} } = useAccountsQuery({
+    variables: {
+      input: {
+        types: [accountType],
+      },
+    },
+  });
 
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>Name</TableCell>
-          <TableCell>Type</TableCell>
-          <TableCell />
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {(accounts ?? []).map((account) => (
-          <AccountListRow key={account.id} account={account} />
-        ))}
-      </TableBody>
-      <AccountListFooter />
-    </Table>
+    <Card>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {(accounts ?? []).map((account) => (
+            <AccountListRow key={account.id} account={account} />
+          ))}
+        </TableBody>
+        <AccountListFooter accountType={accountType} />
+      </Table>
+    </Card>
   );
 };
