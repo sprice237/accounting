@@ -1,7 +1,14 @@
 import { ModelObject } from 'objection';
-import { AccountModel, AccountType, TransactionItemModel } from '$models';
+import {
+  Account,
+  AccountModel,
+  AccountRelationshipModel,
+  AccountType,
+  TransactionItemModel,
+} from '$models';
 import { BaseRepositoryWithDefaultActions } from './baseRepositoryWithDefaultActions';
 import Big from 'big.js';
+import Knex from 'knex';
 
 export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions<
   TransactionItemModel,
@@ -179,5 +186,145 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       (transactionItemModel) => transactionItemModel.toJSON() as ModelObject<TransactionItemModel>
     );
     return transactionItems;
+  }
+
+  async getAccountBalances(
+    portfolioId: string,
+    accumulateHierarchy?: boolean,
+    accountTypes?: string[],
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<
+    Array<
+      Account & {
+        sumDebits: Big;
+        sumCredits: Big;
+        balance: Big;
+        descendantsSumDebits: Big;
+        descendantsSumCredits: Big;
+        descendantsBalance: Big;
+      }
+    >
+  > {
+    const q: Knex.QueryBuilder = this.uow.knexInstance.queryBuilder();
+
+    if (accumulateHierarchy) {
+      const cteName = 'accountDescendants';
+
+      q.withRecursive(cteName, (qb: Knex.QueryBuilder) => {
+        qb.from(AccountModel.tableName)
+          .select({ ancestorAccountId: 'id', accountId: 'id' })
+          .union((qb) => {
+            qb.from({ parent: cteName })
+              .join(
+                { ar: AccountRelationshipModel.tableName },
+                'parent.accountId',
+                'ar.parentAccountId'
+              )
+              .join({ account: AccountModel.tableName }, 'ar.accountId', 'account.id')
+              .select({
+                ancestorAccountId: `parent.ancestorAccountId`,
+                accountId: `account.id`,
+              });
+          });
+      }).from({ d: cteName });
+    } else {
+      q.from(
+        this.uow.knexInstance
+          .from(AccountModel.tableName)
+          .select({ ancestorAccountId: 'id', accountId: 'id' })
+          .as('d')
+      );
+    }
+
+    q.join({ ancestorAccount: AccountModel.tableName }, 'd.ancestorAccountId', 'ancestorAccount.id')
+      .join({ descendantAccount: AccountModel.tableName }, 'd.accountId', 'descendantAccount.id')
+      .leftJoin(
+        { transactionItem: TransactionItemModel.tableName },
+        'transactionItem.accountId',
+        'descendantAccount.id'
+      )
+      .where({
+        ['ancestorAccount.portfolioId']: portfolioId,
+        ['descendantAccount.portfolioId']: portfolioId,
+      })
+      .groupBy('ancestorAccount.id')
+      .orderBy('ancestorAccount.name')
+      .select('ancestorAccount.*', {
+        descendantsSumDebits: this.uow.knexInstance.raw(
+          "coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
+          'transactionItem.type'
+        ),
+        descendantsSumCredits: this.uow.knexInstance.raw(
+          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0)",
+          'transactionItem.type'
+        ),
+        descendantsBalance: this.uow.knexInstance.raw(
+          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0) - coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
+          ['transactionItem.type', 'transactionItem.type']
+        ),
+      });
+
+    if (accountTypes) {
+      q.whereIn('ancestorAccount.type', accountTypes).whereIn(
+        'descendantAccount.type',
+        accountTypes
+      );
+    }
+
+    if (startDate) {
+      q.where('transactionItem.date', '>=', startDate);
+    }
+
+    if (endDate) {
+      q.where('transactionItem.date', '<', endDate);
+    }
+
+    const outerQ = this.uow.knexInstance
+      .queryBuilder()
+      .from(q.as('q'))
+      .leftJoin(
+        { transactionItem: TransactionItemModel.tableName },
+        'transactionItem.accountId',
+        'q.id'
+      )
+      .groupBy(
+        'q.id',
+        'q.portfolioId',
+        'q.type',
+        'q.name',
+        'q.createdAt',
+        'q.updatedAt',
+        'q.descendantsSumDebits',
+        'q.descendantsSumCredits',
+        'q.descendantsBalance'
+      )
+      .orderBy('q.name')
+      .select('q.*', {
+        sumDebits: this.uow.knexInstance.raw(
+          "coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
+          'transactionItem.type'
+        ),
+        sumCredits: this.uow.knexInstance.raw(
+          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0)",
+          'transactionItem.type'
+        ),
+        balance: this.uow.knexInstance.raw(
+          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0) - coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
+          ['transactionItem.type', 'transactionItem.type']
+        ),
+      });
+
+    const results = (await outerQ) as Array<
+      Account & {
+        sumDebits: Big;
+        sumCredits: Big;
+        balance: Big;
+        descendantsSumDebits: Big;
+        descendantsSumCredits: Big;
+        descendantsBalance: Big;
+      }
+    >;
+    return results;
   }
 }

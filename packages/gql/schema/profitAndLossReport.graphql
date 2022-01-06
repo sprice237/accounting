@@ -18,4 +18,5 @@ type ProfitAndLossReportAccount {
   accountId: ID!
   account: Account!
   balance: Money!
+  descendantsBalance: Money!
 }

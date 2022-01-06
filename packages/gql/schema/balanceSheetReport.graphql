@@ -24,4 +24,5 @@ type BalanceSheetReportAccount {
   accountId: ID!
   account: Account!
   balance: Money!
+  descendantsBalance: Money!
 }

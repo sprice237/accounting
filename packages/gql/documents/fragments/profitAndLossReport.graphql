@@ -3,21 +3,26 @@ fragment ProfitAndLossReport on ProfitAndLossReport {
   income {
     totalBalance
     accounts {
-      account {
-        id
-        name
-      }
-      balance
+      ...ProfitAndLossReportAccount
     }
   }
   expenses {
     totalBalance
     accounts {
-      account {
-        id
-        name
-      }
-      balance
+      ...ProfitAndLossReportAccount
     }
   }
+}
+
+fragment ProfitAndLossReportAccount on ProfitAndLossReportAccount {
+  account {
+    id
+    name
+    type
+    parent {
+      id
+    }
+  }
+  balance
+  descendantsBalance
 }

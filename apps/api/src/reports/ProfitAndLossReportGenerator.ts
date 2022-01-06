@@ -1,9 +1,5 @@
 import Big from 'big.js';
-import {
-  AccountsRepository,
-  TransactionItemsRepository,
-  UnitOfWork,
-} from '@sprice237/accounting-db';
+import { TransactionItemsRepository, UnitOfWork } from '@sprice237/accounting-db';
 
 export type ProfitAndLossReport = {
   netProfit: Big;
@@ -20,6 +16,7 @@ export type ProfitAndLossReport = {
 export type ProfitAndLossAccountItem = {
   accountId: string;
   balance: Big;
+  descendantsBalance: Big;
 };
 
 export class ProfitAndLossReportGenerator {
@@ -35,57 +32,55 @@ export class ProfitAndLossReportGenerator {
 
   async generateReport(): Promise<ProfitAndLossReport> {
     const incomeAccounts = await this.uow
-      .getRepo(AccountsRepository)
-      .getAllForPortfolio(this.portfolioId, ['INCOME']);
+      .getRepo(TransactionItemsRepository)
+      .getAccountBalances(this.portfolioId, false, ['INCOME'], this.startDate, this.endDate);
 
     const expenseAccounts = await this.uow
-      .getRepo(AccountsRepository)
-      .getAllForPortfolio(this.portfolioId, ['EXPENSE']);
+      .getRepo(TransactionItemsRepository)
+      .getAccountBalances(this.portfolioId, false, ['EXPENSE'], this.startDate, this.endDate);
 
-    const incomeAccountBalances = await Promise.all(
-      incomeAccounts.map(async (incomeAccount) =>
-        this.generateProfitAndLossAccountItem(incomeAccount)
-      )
-    );
-
-    const expenseAccountBalances = await Promise.all(
-      expenseAccounts.map(async (expenseAccount) =>
-        this.generateProfitAndLossAccountItem(expenseAccount)
-      )
-    );
-
-    const incomeTotalBalance = incomeAccountBalances.reduce(
+    const incomeTotalBalance = incomeAccounts.reduce(
       (_sum, { balance }) => _sum.add(balance),
       Big(0)
     );
 
-    const expensesTotalBalance = expenseAccountBalances.reduce(
+    const expensesTotalBalance = expenseAccounts.reduce(
       (_sum, { balance }) => _sum.add(balance),
       Big(0)
     );
 
     const netProfit = incomeTotalBalance.add(expensesTotalBalance);
 
+    const incomeAccountsByHierarchy = await this.uow
+      .getRepo(TransactionItemsRepository)
+      .getAccountBalances(this.portfolioId, true, ['INCOME'], this.startDate, this.endDate);
+
+    const expenseAccountsByHierarchy = await this.uow
+      .getRepo(TransactionItemsRepository)
+      .getAccountBalances(this.portfolioId, true, ['EXPENSE'], this.startDate, this.endDate);
+
     return {
       netProfit,
       income: {
         totalBalance: incomeTotalBalance,
-        accounts: incomeAccountBalances,
+        accounts: incomeAccountsByHierarchy.map(
+          ({ id: accountId, balance, descendantsBalance }) => ({
+            accountId,
+            balance,
+            descendantsBalance,
+          })
+        ),
       },
       expenses: {
         totalBalance: expensesTotalBalance,
-        accounts: expenseAccountBalances,
+        accounts: expenseAccountsByHierarchy.map(
+          ({ id: accountId, balance, descendantsBalance }) => ({
+            accountId,
+            balance,
+            descendantsBalance,
+          })
+        ),
       },
-    };
-  }
-
-  private async generateProfitAndLossAccountItem(account: { id: string }) {
-    const { sumDebits, sumCredits } = await this.uow
-      .getRepo(TransactionItemsRepository)
-      .getAggregationForAccount(account.id, this.startDate, this.endDate);
-    return {
-      accountId: account.id,
-      balance: sumCredits.sub(sumDebits),
     };
   }
 }

@@ -2,21 +2,13 @@ fragment BalanceSheetReport on BalanceSheetReport {
   assets {
     totalBalance
     accounts {
-      account {
-        id
-        name
-      }
-      balance
+      ...BalanceSheetReportAccount
     }
   }
   liabilities {
     totalBalance
     accounts {
-      account {
-        id
-        name
-      }
-      balance
+      ...BalanceSheetReportAccount
     }
   }
   equity {
@@ -24,11 +16,20 @@ fragment BalanceSheetReport on BalanceSheetReport {
     netProfit
     unbalancedTransactionsTotal
     accounts {
-      account {
-        id
-        name
-      }
-      balance
+      ...BalanceSheetReportAccount
     }
   }
+}
+
+fragment BalanceSheetReportAccount on BalanceSheetReportAccount {
+  account {
+    id
+    name
+    type
+    parent {
+      id
+    }
+  }
+  balance
+  descendantsBalance
 }
