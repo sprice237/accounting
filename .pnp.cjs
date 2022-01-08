@@ -31,6 +31,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:apps/csv-importer"
       },
       {
+        "name": "@sprice237/accounting-handle-automatic-actions",
+        "reference": "workspace:apps/handle-automatic-actions"
+      },
+      {
         "name": "@sprice237/accounting-web",
         "reference": "workspace:apps/web"
       },
@@ -7080,6 +7084,33 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["ts-node", "virtual:c7ba9fa66aa77d2806506100589b8bd12ddb9a3ba5e9f6ce3c1fe2957e54b73d811ce195ee633a23a8928d7c6ff01bc1b478a0141116463ef14c928c88c917a4#npm:10.2.0"],
             ["tslib", "npm:2.3.1"],
             ["ttypescript", "virtual:c7ba9fa66aa77d2806506100589b8bd12ddb9a3ba5e9f6ce3c1fe2957e54b73d811ce195ee633a23a8928d7c6ff01bc1b478a0141116463ef14c928c88c917a4#npm:1.5.12"],
+            ["typescript", "patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=493e53"],
+            ["typescript-transform-paths", "virtual:c7ba9fa66aa77d2806506100589b8bd12ddb9a3ba5e9f6ce3c1fe2957e54b73d811ce195ee633a23a8928d7c6ff01bc1b478a0141116463ef14c928c88c917a4#npm:3.3.1"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@sprice237/accounting-handle-automatic-actions", [
+        ["workspace:apps/handle-automatic-actions", {
+          "packageLocation": "./apps/handle-automatic-actions/",
+          "packageDependencies": [
+            ["@sprice237/accounting-handle-automatic-actions", "workspace:apps/handle-automatic-actions"],
+            ["@sprice237/accounting-db", "virtual:f9345def4fe49d2f88d837ce5e0160ce31279071027ead0cab5d1ea86d0ddc724d3c22adb4f72ae989844e795c3e825e02245f997600b11de010ae9b6c48d4c0#workspace:packages/db"],
+            ["@sprice237/accounting-eslint-config", "workspace:packages/eslint-config"],
+            ["@types/big.js", "npm:6.1.2"],
+            ["@types/node", "npm:16.4.13"],
+            ["@typescript-eslint/eslint-plugin", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:4.29.0"],
+            ["@typescript-eslint/parser", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:4.29.0"],
+            ["big.js", "npm:6.1.1"],
+            ["date-fns", "npm:2.28.0"],
+            ["dotenv", "npm:10.0.0"],
+            ["eslint", "npm:7.32.0"],
+            ["eslint-config-prettier", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:8.3.0"],
+            ["eslint-plugin-prettier", "virtual:ecb5f5b0c05985e3d8bf2980be8523a2ed8e21d9df4cae2bac4d3850d1d82a937080e6211d45a804bac4c4d55623ca9f4d476f0dc9f7d8e8c72433bcd3517f95#npm:4.0.0"],
+            ["prettier", "npm:2.3.2"],
+            ["rimraf", "npm:3.0.2"],
+            ["ts-node", "virtual:f9345def4fe49d2f88d837ce5e0160ce31279071027ead0cab5d1ea86d0ddc724d3c22adb4f72ae989844e795c3e825e02245f997600b11de010ae9b6c48d4c0#npm:10.2.0"],
+            ["ttypescript", "virtual:f9345def4fe49d2f88d837ce5e0160ce31279071027ead0cab5d1ea86d0ddc724d3c22adb4f72ae989844e795c3e825e02245f997600b11de010ae9b6c48d4c0#npm:1.5.12"],
             ["typescript", "patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=493e53"],
             ["typescript-transform-paths", "virtual:c7ba9fa66aa77d2806506100589b8bd12ddb9a3ba5e9f6ce3c1fe2957e54b73d811ce195ee633a23a8928d7c6ff01bc1b478a0141116463ef14c928c88c917a4#npm:3.3.1"]
           ],

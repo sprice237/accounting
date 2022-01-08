@@ -4,11 +4,24 @@ import {
   AccountModel,
   AccountRelationshipModel,
   AccountType,
+  DescriptionFilterType,
+  NumericFilterType,
+  NumericFilterTypeOperators,
+  TransactionItem,
   TransactionItemModel,
+  TransactionItemRelations,
 } from '$models';
 import { BaseRepositoryWithDefaultActions } from './baseRepositoryWithDefaultActions';
 import Big from 'big.js';
 import Knex from 'knex';
+
+export type FindTransactionItemsFilter =
+  | { filterType: 'account'; accountId: string }
+  | { filterType: 'date'; date: Date; op: NumericFilterType }
+  | { filterType: 'description'; description: string; op: DescriptionFilterType }
+  | { filterType: 'amount'; amount: Big; op: NumericFilterType }
+  | { filterType: 'transactionItemType'; transactionItemType: 'DEBIT' | 'CREDIT' }
+  | { filterType: 'hasTransaction'; hasTransaction: boolean };
 
 export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions<
   TransactionItemModel,
@@ -20,28 +33,37 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
 
   async getAllForPortfolio(
     portfolioId: string,
-    pagination: { pageSize: number; pageToken: string | undefined },
-    filters?: { accountTypes?: AccountType[]; startDate?: Date; endDate?: Date }
+    pagination?: { pageSize: number; pageToken: string | undefined },
+    filters?: {
+      accountTypes?: AccountType[];
+      startDate?: Date;
+      endDate?: Date;
+      hasTransaction?: boolean;
+    },
+    sortOrder: 'ASC' | 'DESC' = 'DESC'
   ): Promise<ModelObject<TransactionItemModel>[]> {
-    let q = TransactionItemModel.query(this.uow.queryTarget)
+    const q = TransactionItemModel.query(this.uow.queryTarget)
       .whereIn(
         'accountId',
         AccountModel.query(this.uow.queryTarget).where({ portfolioId }).select('id')
       )
-      .orderBy([{ column: 'date', order: 'DESC' }, 'id'])
-      .limit(pagination.pageSize);
+      .orderBy([{ column: 'date', order: sortOrder }, 'id']);
 
-    if (pagination.pageToken) {
-      const [dateIso, transactionItemId] = pagination.pageToken.split('|') as [string, string];
-      q = q.where(function () {
-        this.where('date', '<', dateIso).orWhere(function () {
-          this.where('date', '=', dateIso).andWhere('id', '>', transactionItemId);
+    if (pagination) {
+      q.limit(pagination.pageSize);
+
+      if (pagination.pageToken) {
+        const [dateIso, transactionItemId] = pagination.pageToken.split('|') as [string, string];
+        q.where(function () {
+          this.where('date', '<', dateIso).orWhere(function () {
+            this.where('date', '=', dateIso).andWhere('id', '>', transactionItemId);
+          });
         });
-      });
+      }
     }
 
     if (filters?.accountTypes) {
-      q = q.whereIn(
+      q.whereIn(
         'accountId',
         AccountModel.query(this.uow.queryTarget)
           .where({ portfolioId })
@@ -51,15 +73,88 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
     }
 
     if (filters?.startDate) {
-      q = q.where('date', '>=', filters.startDate);
+      q.where('date', '>=', filters.startDate);
     }
 
     if (filters?.endDate) {
-      q = q.where('date', '>=', filters.endDate);
+      q.where('date', '>=', filters.endDate);
+    }
+
+    if (filters?.hasTransaction === true) {
+      q.whereNotNull('transactionId');
+    }
+
+    if (filters?.hasTransaction === false) {
+      q.whereNull('transactionId');
     }
 
     const transactionItemModels = await q;
     const transactionItems = transactionItemModels.map((model) => model.toJSON());
+    return transactionItems;
+  }
+
+  async getAllForPortfolioDeep(
+    portfolioId: string,
+    pagination?: { pageSize: number; pageToken: string | undefined },
+    filters?: {
+      accountTypes?: AccountType[];
+      startDate?: Date;
+      endDate?: Date;
+      hasTransaction?: boolean;
+    },
+    sortOrder: 'ASC' | 'DESC' = 'DESC'
+  ): Promise<(TransactionItem & TransactionItemRelations)[]> {
+    const q = TransactionItemModel.query(this.uow.queryTarget)
+      .withGraphFetched('[account, transaction]')
+      .whereIn(
+        'accountId',
+        AccountModel.query(this.uow.queryTarget).where({ portfolioId }).select('id')
+      )
+      .orderBy([{ column: 'date', order: sortOrder }, 'id']);
+
+    if (pagination) {
+      q.limit(pagination.pageSize);
+
+      if (pagination.pageToken) {
+        const [dateIso, transactionItemId] = pagination.pageToken.split('|') as [string, string];
+        q.where(function () {
+          this.where('date', '<', dateIso).orWhere(function () {
+            this.where('date', '=', dateIso).andWhere('id', '>', transactionItemId);
+          });
+        });
+      }
+    }
+
+    if (filters?.accountTypes) {
+      q.whereIn(
+        'accountId',
+        AccountModel.query(this.uow.queryTarget)
+          .where({ portfolioId })
+          .whereIn('type', filters.accountTypes)
+          .select('id')
+      );
+    }
+
+    if (filters?.startDate) {
+      q.where('date', '>=', filters.startDate);
+    }
+
+    if (filters?.endDate) {
+      q.where('date', '>=', filters.endDate);
+    }
+
+    if (filters?.hasTransaction === true) {
+      q.whereNotNull('transactionId');
+    }
+
+    if (filters?.hasTransaction === false) {
+      q.whereNull('transactionId');
+    }
+
+    const transactionItemModels = await q;
+    const transactionItems = transactionItemModels.map(
+      (model) => model.toJSON() as unknown as TransactionItem & TransactionItemRelations
+    );
     return transactionItems;
   }
 
@@ -190,7 +285,6 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
 
   async getAccountBalances(
     portfolioId: string,
-    accumulateHierarchy?: boolean,
     accountTypes?: string[],
     startDate?: Date,
     endDate?: Date
@@ -208,34 +302,25 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
   > {
     const q: Knex.QueryBuilder = this.uow.knexInstance.queryBuilder();
 
-    if (accumulateHierarchy) {
-      const cteName = 'accountDescendants';
+    const cteName = 'accountDescendants';
 
-      q.withRecursive(cteName, (qb: Knex.QueryBuilder) => {
-        qb.from(AccountModel.tableName)
-          .select({ ancestorAccountId: 'id', accountId: 'id' })
-          .union((qb) => {
-            qb.from({ parent: cteName })
-              .join(
-                { ar: AccountRelationshipModel.tableName },
-                'parent.accountId',
-                'ar.parentAccountId'
-              )
-              .join({ account: AccountModel.tableName }, 'ar.accountId', 'account.id')
-              .select({
-                ancestorAccountId: `parent.ancestorAccountId`,
-                accountId: `account.id`,
-              });
-          });
-      }).from({ d: cteName });
-    } else {
-      q.from(
-        this.uow.knexInstance
-          .from(AccountModel.tableName)
-          .select({ ancestorAccountId: 'id', accountId: 'id' })
-          .as('d')
-      );
-    }
+    q.withRecursive(cteName, (qb: Knex.QueryBuilder) => {
+      qb.from(AccountModel.tableName)
+        .select({ ancestorAccountId: 'id', accountId: 'id' })
+        .union((qb) => {
+          qb.from({ parent: cteName })
+            .join(
+              { ar: AccountRelationshipModel.tableName },
+              'parent.accountId',
+              'ar.parentAccountId'
+            )
+            .join({ account: AccountModel.tableName }, 'ar.accountId', 'account.id')
+            .select({
+              ancestorAccountId: `parent.ancestorAccountId`,
+              accountId: `account.id`,
+            });
+        });
+    }).from({ d: cteName });
 
     q.join({ ancestorAccount: AccountModel.tableName }, 'd.ancestorAccountId', 'ancestorAccount.id')
       .join({ descendantAccount: AccountModel.tableName }, 'd.accountId', 'descendantAccount.id')
@@ -280,12 +365,22 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       q.where('transactionItem.date', '<', endDate);
     }
 
+    const outerTransactionItemQ = this.uow.knexInstance.from(TransactionItemModel.tableName);
+
+    if (startDate) {
+      outerTransactionItemQ.where('date', '>=', startDate);
+    }
+
+    if (endDate) {
+      outerTransactionItemQ.where('date', '<', endDate);
+    }
+
     const outerQ = this.uow.knexInstance
       .queryBuilder()
       .from(q.as('q'))
       .leftJoin(
-        { transactionItem: TransactionItemModel.tableName },
-        'transactionItem.accountId',
+        outerTransactionItemQ.as('outerTransactionItem'),
+        'outerTransactionItem.accountId',
         'q.id'
       )
       .groupBy(
@@ -303,17 +398,19 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       .select('q.*', {
         sumDebits: this.uow.knexInstance.raw(
           "coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
-          'transactionItem.type'
+          'outerTransactionItem.type'
         ),
         sumCredits: this.uow.knexInstance.raw(
           "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0)",
-          'transactionItem.type'
+          'outerTransactionItem.type'
         ),
         balance: this.uow.knexInstance.raw(
           "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0) - coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
-          ['transactionItem.type', 'transactionItem.type']
+          ['outerTransactionItem.type', 'outerTransactionItem.type']
         ),
       });
+
+    console.log(outerQ.toSQL().sql);
 
     const results = (await outerQ) as Array<
       Account & {
@@ -326,5 +423,43 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       }
     >;
     return results;
+  }
+
+  async findTransactionItems(
+    portfolioId: string,
+    filters: FindTransactionItemsFilter[] = []
+  ): Promise<TransactionItem[]> {
+    const q = TransactionItemModel.query(this.uow.queryTarget).whereIn(
+      'accountId',
+      AccountModel.query(this.uow.queryTarget).where({ portfolioId }).clearSelect().select('id')
+    );
+
+    for (const filter of filters) {
+      switch (filter.filterType) {
+        case 'account':
+          q.where({ accountId: filter.accountId });
+          break;
+        case 'date':
+          q.where('date', NumericFilterTypeOperators[filter.op], filter.date);
+          break;
+        case 'amount':
+          q.where('amount', NumericFilterTypeOperators[filter.op], filter.amount.toString());
+          break;
+        case 'transactionItemType':
+          q.where({ type: filter.transactionItemType });
+          break;
+        case 'hasTransaction':
+          if (filter.hasTransaction) {
+            q.whereNotNull('transactionId');
+          } else {
+            q.whereNull('transactionId');
+          }
+          break;
+      }
+    }
+
+    const models = await q;
+    const transactionItems = models.map((model) => model.toJSON());
+    return transactionItems;
   }
 }

@@ -33,11 +33,12 @@ export class ProfitAndLossReportGenerator {
   async generateReport(): Promise<ProfitAndLossReport> {
     const incomeAccounts = await this.uow
       .getRepo(TransactionItemsRepository)
-      .getAccountBalances(this.portfolioId, false, ['INCOME'], this.startDate, this.endDate);
+      .getAccountBalances(this.portfolioId, ['INCOME'], this.startDate, this.endDate);
+    console.log(incomeAccounts);
 
     const expenseAccounts = await this.uow
       .getRepo(TransactionItemsRepository)
-      .getAccountBalances(this.portfolioId, false, ['EXPENSE'], this.startDate, this.endDate);
+      .getAccountBalances(this.portfolioId, ['EXPENSE'], this.startDate, this.endDate);
 
     const incomeTotalBalance = incomeAccounts.reduce(
       (_sum, { balance }) => _sum.add(balance),
@@ -51,35 +52,23 @@ export class ProfitAndLossReportGenerator {
 
     const netProfit = incomeTotalBalance.add(expensesTotalBalance);
 
-    const incomeAccountsByHierarchy = await this.uow
-      .getRepo(TransactionItemsRepository)
-      .getAccountBalances(this.portfolioId, true, ['INCOME'], this.startDate, this.endDate);
-
-    const expenseAccountsByHierarchy = await this.uow
-      .getRepo(TransactionItemsRepository)
-      .getAccountBalances(this.portfolioId, true, ['EXPENSE'], this.startDate, this.endDate);
-
     return {
       netProfit,
       income: {
         totalBalance: incomeTotalBalance,
-        accounts: incomeAccountsByHierarchy.map(
-          ({ id: accountId, balance, descendantsBalance }) => ({
-            accountId,
-            balance,
-            descendantsBalance,
-          })
-        ),
+        accounts: incomeAccounts.map(({ id: accountId, balance, descendantsBalance }) => ({
+          accountId,
+          balance,
+          descendantsBalance,
+        })),
       },
       expenses: {
         totalBalance: expensesTotalBalance,
-        accounts: expenseAccountsByHierarchy.map(
-          ({ id: accountId, balance, descendantsBalance }) => ({
-            accountId,
-            balance,
-            descendantsBalance,
-          })
-        ),
+        accounts: expenseAccounts.map(({ id: accountId, balance, descendantsBalance }) => ({
+          accountId,
+          balance,
+          descendantsBalance,
+        })),
       },
     };
   }

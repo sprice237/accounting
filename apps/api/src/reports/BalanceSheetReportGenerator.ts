@@ -32,9 +32,15 @@ export class BalanceSheetReportGenerator {
   }
 
   async generateReport(): Promise<BalanceSheetReport> {
-    const assetAccountItems = await this.getAccountItems('ASSET', false);
-    const liabilityAccountItems = await this.getAccountItems('LIABILITY', false);
-    const equityAccountItems = await this.getAccountItems('EQUITY', false);
+    const assetAccountItems = await this.uow
+      .getRepo(TransactionItemsRepository)
+      .getAccountBalances(this.portfolioId, ['ASSET'], undefined, this.reportDate);
+    const liabilityAccountItems = await this.uow
+      .getRepo(TransactionItemsRepository)
+      .getAccountBalances(this.portfolioId, ['LIABILITY'], undefined, this.reportDate);
+    const equityAccountItems = await this.uow
+      .getRepo(TransactionItemsRepository)
+      .getAccountBalances(this.portfolioId, ['EQUITY'], undefined, this.reportDate);
 
     const netProfit = await this.getNetProfit();
     const unbalancedTransactionsTotal = await this.getUnbalancedTransactionsTotal();
@@ -53,55 +59,34 @@ export class BalanceSheetReportGenerator {
       unbalancedTransactionsTotal,
     ].reduce((_sum, balance) => _sum.add(balance), Big(0));
 
-    const assetAccountItemsByHierarchy = await this.getAccountItems('ASSET', true);
-    const liabilityAccountItemsByHierarchy = await this.getAccountItems('LIABILITY', true);
-    const equityAccountItemsByHierarchy = await this.getAccountItems('EQUITY', true);
-
     return {
       assets: {
         totalBalance: assetsTotalBalance,
-        accounts: assetAccountItemsByHierarchy.map(
-          ({ id: accountId, balance, descendantsBalance }) => ({
-            accountId,
-            balance,
-            descendantsBalance,
-          })
-        ),
+        accounts: assetAccountItems.map(({ id: accountId, balance, descendantsBalance }) => ({
+          accountId,
+          balance,
+          descendantsBalance,
+        })),
       },
       liabilities: {
         totalBalance: liabilitiesTotalBalance,
-        accounts: liabilityAccountItemsByHierarchy.map(
-          ({ id: accountId, balance, descendantsBalance }) => ({
-            accountId,
-            balance,
-            descendantsBalance,
-          })
-        ),
+        accounts: liabilityAccountItems.map(({ id: accountId, balance, descendantsBalance }) => ({
+          accountId,
+          balance,
+          descendantsBalance,
+        })),
       },
       equity: {
         totalBalance: equityTotalBalance,
         netProfit,
         unbalancedTransactionsTotal,
-        accounts: equityAccountItemsByHierarchy.map(
-          ({ id: accountId, balance, descendantsBalance }) => ({
-            accountId,
-            balance,
-            descendantsBalance,
-          })
-        ),
+        accounts: equityAccountItems.map(({ id: accountId, balance, descendantsBalance }) => ({
+          accountId,
+          balance,
+          descendantsBalance,
+        })),
       },
     };
-  }
-
-  private async getAccountItems(
-    accountType: 'ASSET' | 'LIABILITY' | 'EQUITY',
-    byHierarchy: boolean
-  ) {
-    const accountItems = await this.uow
-      .getRepo(TransactionItemsRepository)
-      .getAccountBalances(this.portfolioId, byHierarchy, [accountType], undefined, this.reportDate);
-
-    return accountItems;
   }
 
   private async getNetProfit() {
