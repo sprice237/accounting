@@ -25,11 +25,20 @@ const getReconciledAccountName = (transactionItem: TransactionItemFragment) => {
 
 type ReconciledAccountCellProps = {
   transactionItem: TransactionItemFragment;
+  onLaunchEditor: () => void;
 };
 
-export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({ transactionItem }) => {
+export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({
+  transactionItem,
+  onLaunchEditor,
+}) => {
   const [isMenuVisible, showMenu, hideMenu] = useFlagState();
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
+
+  const launchEditor = () => {
+    hideMenu();
+    onLaunchEditor();
+  };
 
   return (
     <TableCell style={{ cursor: 'pointer' }}>
@@ -40,6 +49,7 @@ export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({ transac
         <CategorizeTransactionMenu
           referenceElement={referenceElement}
           transactionItem={transactionItem}
+          onLaunchEditor={launchEditor}
           onClose={hideMenu}
         />
       )}

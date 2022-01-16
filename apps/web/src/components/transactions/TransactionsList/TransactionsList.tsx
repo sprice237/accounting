@@ -43,10 +43,9 @@ export const TransactionsList: VFC = () => {
         <TableRow>
           <TableCell>Date</TableCell>
           <TableCell>Description</TableCell>
-          <TableCell>Source Account</TableCell>
-          <TableCell>Reconciled Account</TableCell>
+          <TableCell>Account</TableCell>
+          <TableCell>Category</TableCell>
           <TableCell>Amount</TableCell>
-          <TableCell />
         </TableRow>
       </TableHead>
       <TableBody>

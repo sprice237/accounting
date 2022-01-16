@@ -3,7 +3,7 @@ import formatDate from 'date-fns/format';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { TransactionItemFragment } from '@sprice237/accounting-gql';
-import { Button, useFlagState } from '@sprice237/accounting-ui';
+import { useFlagState } from '@sprice237/accounting-ui';
 import { TransactionEditorModal, TransactionEditorModel } from '$cmp/transactions/editor';
 import { ReconciledAccountCell } from './ReconciledAccountCell';
 
@@ -61,7 +61,10 @@ export const TransactionsListRow: VFC<TransactionsListRowProps> = ({ transaction
         <TableCell>{formatDate(transactionItem.date, 'MM/dd/yyyy')}</TableCell>
         <TableCell>{transactionItem.description}</TableCell>
         <TableCell>{transactionItem.account.name}</TableCell>
-        <ReconciledAccountCell transactionItem={transactionItem} />
+        <ReconciledAccountCell
+          onLaunchEditor={launchEditorModal}
+          transactionItem={transactionItem}
+        />
         <TableCell>
           {transactionItem.amount.lt(0) && (
             <span style={{ color: 'green' }}>{transactionItem.amount.mul(-1).toFixed(2)}</span>
@@ -72,9 +75,6 @@ export const TransactionsListRow: VFC<TransactionsListRowProps> = ({ transaction
           {transactionItem.amount.gt(0) && (
             <span style={{ color: 'red' }}>{transactionItem.amount.toFixed(2)}</span>
           )}
-        </TableCell>
-        <TableCell>
-          <Button onClick={launchEditorModal}>Edit</Button>
         </TableCell>
       </TableRow>
     </>
