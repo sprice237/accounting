@@ -10,6 +10,7 @@ import {
   TransactionItem,
   TransactionItemModel,
   TransactionItemRelations,
+  TransactionModel,
 } from '$models';
 import { BaseRepositoryWithDefaultActions } from './baseRepositoryWithDefaultActions';
 import Big from 'big.js';
@@ -38,6 +39,9 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       accountTypes?: AccountType[];
       startDate?: Date;
       endDate?: Date;
+      sourceAccountIds?: string[];
+      categoryAccountIds?: string[];
+      searchText?: string;
       hasTransaction?: boolean;
     },
     sortOrder: 'ASC' | 'DESC' = 'DESC'
@@ -77,7 +81,31 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
     }
 
     if (filters?.endDate) {
-      q.where('date', '>=', filters.endDate);
+      q.where('date', '<', filters.endDate);
+    }
+
+    if (filters?.sourceAccountIds) {
+      q.whereIn('accountId', filters.sourceAccountIds);
+    }
+
+    if (filters?.categoryAccountIds) {
+      const existQb = this.uow.knexInstance
+        .queryBuilder()
+        .from({ t: TransactionModel.tableName })
+        .join({ ti: TransactionItemModel.tableName }, 't.id', 'ti.transactionId')
+        .whereNot('ti.id', this.uow.knexInstance.raw('??', `${TransactionItemModel.tableName}.id`))
+        .whereIn('ti.accountId', filters.categoryAccountIds)
+        .where(
+          't.id',
+          this.uow.knexInstance.raw('??', `${TransactionItemModel.tableName}.transactionId`)
+        )
+        .select('*');
+      q.whereExists(existQb);
+    }
+
+    if (filters?.searchText) {
+      const escapedSearchText = filters.searchText.replaceAll('%', '\\%').replaceAll('_', '\\_');
+      q.where('description', 'ilike', `%${escapedSearchText}%`);
     }
 
     if (filters?.hasTransaction === true) {

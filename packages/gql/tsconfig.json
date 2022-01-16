@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.build.package.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "target": "ES2015",
   }
 }

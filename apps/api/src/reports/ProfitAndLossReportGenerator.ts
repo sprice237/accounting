@@ -34,7 +34,6 @@ export class ProfitAndLossReportGenerator {
     const incomeAccounts = await this.uow
       .getRepo(TransactionItemsRepository)
       .getAccountBalances(this.portfolioId, ['INCOME'], this.startDate, this.endDate);
-    console.log(incomeAccounts);
 
     const expenseAccounts = await this.uow
       .getRepo(TransactionItemsRepository)

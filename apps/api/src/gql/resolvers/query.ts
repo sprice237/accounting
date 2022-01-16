@@ -36,7 +36,18 @@ export const resolvers: AppResolvers['Query'] = {
   },
   async transactionItems(
     _,
-    { input: { startDate, endDate, pageSize, pageToken } },
+    {
+      input: {
+        startDate,
+        endDate,
+        sourceAccountIds,
+        categoryAccountIds,
+        hasTransaction,
+        searchText,
+        pageSize,
+        pageToken,
+      },
+    },
     { assertPortfolio }
   ) {
     const { id: portfolioId } = assertPortfolio();
@@ -49,6 +60,10 @@ export const resolvers: AppResolvers['Query'] = {
         accountTypes: ['ASSET', 'LIABILITY'],
         startDate: startDate ?? undefined,
         endDate: endDate ?? undefined,
+        sourceAccountIds: sourceAccountIds?.length ? sourceAccountIds : undefined,
+        categoryAccountIds: categoryAccountIds?.length ? categoryAccountIds : undefined,
+        hasTransaction: hasTransaction ?? undefined,
+        searchText: searchText ?? undefined,
       }
     );
 

@@ -41,6 +41,10 @@ input UpdateTransactionItemInput {
 input TransactionItemsQueryInput {
   startDate: Date
   endDate: Date
+  sourceAccountIds: [ID!]
+  categoryAccountIds: [ID!]
+  searchText: String
+  hasTransaction: Boolean
   pageSize: Int!
   pageToken: String
 }

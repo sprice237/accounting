@@ -1,5 +1,5 @@
 import { useState, VFC } from 'react';
-import Menu from '@mui/material/Menu';
+import Popover from '@mui/material/Popover';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import {
@@ -39,7 +39,7 @@ export const CategorizeTransactionMenu: VFC<CategorizeTransactionMenuProps> = ({
   };
 
   return (
-    <Menu anchorEl={referenceElement} open onClose={onClose}>
+    <Popover anchorEl={referenceElement} open onClose={onClose}>
       {!accountType && (
         <MenuList>
           <MenuItem onClick={() => setSelectedAccountType(AccountTypeEnum.Income)}>
@@ -58,6 +58,6 @@ export const CategorizeTransactionMenu: VFC<CategorizeTransactionMenuProps> = ({
           onAccountSelected={onAccountSelected}
         />
       )}
-    </Menu>
+    </Popover>
   );
 };
