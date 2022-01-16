@@ -4,3 +4,9 @@ export type PartialRequired<T, K extends keyof T> = {
   {
     [P in keyof Pick<T, K>]-?: Required<T[P]>;
   };
+
+export const assert = <T extends unknown>(x: T | null | undefined): asserts x is T => {
+  if (!x) {
+    throw new Error('Assertion failed');
+  }
+};

@@ -15,13 +15,12 @@ export class AccountsRepository extends BasePortfolioModelRepositoryWithDefaultA
     types?: AccountType[]
   ): Promise<ModelObject<AccountModel>[]> {
     if (!types) {
-      return await super.getAllForPortfolio(portfolioId);
+      return await super._getAllForPortfolio(portfolioId, (qb) => qb.orderBy('name'));
     }
 
-    const accounts = (await AccountModel.query(this.uow.queryTarget)
-      .where('portfolioId', portfolioId)
-      .whereIn('type', types)) as AccountModel[];
-    const accountObjects = accounts.map((account) => account.toJSON() as ModelObject<AccountModel>);
-    return accountObjects;
+    const accounts = await this._getAllForPortfolio(portfolioId, (qb) =>
+      qb.whereIn('type', types).orderBy('name')
+    );
+    return accounts;
   }
 }

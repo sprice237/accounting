@@ -26,7 +26,7 @@ module.exports = {
         "printWidth": 100,
         "tabWidth": 2,
         "trailingComma": 'es5',
-        "arrowParens": 'always'
+        "arrowParens": 'always',
       }
     ],
     "indent": [0],

@@ -5,25 +5,7 @@ import TableRow from '@mui/material/TableRow';
 import { TransactionItemFragment } from '@sprice237/accounting-gql';
 import { Button, useFlagState } from '@sprice237/accounting-ui';
 import { TransactionEditorModal, TransactionEditorModel } from '$cmp/transactions/editor';
-
-const getReconciledAccountName = (transactionItem: TransactionItemFragment) => {
-  if (!transactionItem.transaction) {
-    return 'Unreconciled';
-  }
-
-  const otherTransactionItems = transactionItem.transaction.items.filter(
-    (_item) => _item.id !== transactionItem.id
-  );
-
-  if (otherTransactionItems.length === 0) {
-    return 'Error';
-  }
-  if (otherTransactionItems.length === 1) {
-    return otherTransactionItems[0]?.account.name;
-  }
-
-  return 'Multiple';
-};
+import { ReconciledAccountCell } from './ReconciledAccountCell';
 
 type TransactionsListRowProps = {
   transactionItem: TransactionItemFragment;
@@ -77,7 +59,7 @@ export const TransactionsListRow: VFC<TransactionsListRowProps> = ({ transaction
         <TableCell>{formatDate(transactionItem.date, 'MM/dd/yyyy')}</TableCell>
         <TableCell>{transactionItem.description}</TableCell>
         <TableCell>{transactionItem.account.name}</TableCell>
-        <TableCell>{getReconciledAccountName(transactionItem)}</TableCell>
+        <ReconciledAccountCell transactionItem={transactionItem} />
         <TableCell>
           {transactionItem.amount.mul(transactionItem.type === 'CREDIT' ? -1 : 1).toFixed(2)}
         </TableCell>

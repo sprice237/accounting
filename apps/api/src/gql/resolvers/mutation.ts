@@ -9,6 +9,7 @@ import {
 
 import { AppResolvers } from '.';
 import { ForbiddenError } from 'apollo-server-express';
+import { assert } from '@sprice237/accounting-utils';
 
 export const resolvers: AppResolvers['Mutation'] = {
   async createAccount(_, { input }, { assertPortfolio }) {
@@ -188,6 +189,76 @@ export const resolvers: AppResolvers['Mutation'] = {
     if (!transactionItem) {
       throw new Error('not found');
     }
+
+    return true;
+  },
+  async categorizeTransactionItem(_, { transactionItemId, accountId }, { assertPortfolio }) {
+    const { id: portfolioId } = assertPortfolio();
+
+    const uow = new UnitOfWork();
+    await uow.executeTransaction(async () => {
+      const transactionItem = await uow
+        .getRepo(TransactionItemsRepository)
+        .getById(transactionItemId);
+
+      if (!transactionItem) {
+        throw new Error('not found');
+      }
+
+      if (transactionItem.transactionId) {
+        const transactionId = transactionItem.transactionId;
+
+        const transactionItemsForTransaction = await uow
+          .getRepo(TransactionItemsRepository)
+          .getAllForTransaction(transactionId);
+
+        const otherTransactionItems = transactionItemsForTransaction.filter(
+          ({ id }) => id !== transactionItem.id
+        );
+
+        if (otherTransactionItems.length > 1) {
+          throw new Error('unsupported for complex transactions');
+        }
+
+        const [otherTransactionItem] = otherTransactionItems;
+
+        if (otherTransactionItem) {
+          const account = await uow
+            .getRepo(AccountsRepository)
+            .getById(otherTransactionItem.accountId);
+
+          assert(account);
+
+          if (account.type !== 'INCOME' && account.type !== 'EXPENSE') {
+            throw new Error('unsupported for account types other than INCOME and EXPENSE');
+          }
+
+          await uow.getRepo(TransactionItemsRepository).delete(otherTransactionItem.id);
+        }
+
+        transactionItem.transactionId = null;
+        await uow.getRepo(TransactionItemsRepository).update(transactionItem.id, transactionItem);
+
+        await uow.getRepo(TransactionsRepository).delete(transactionId);
+      }
+
+      const transaction = await uow.getRepo(TransactionsRepository).create({
+        portfolioId,
+      });
+
+      transactionItem.transactionId = transaction.id;
+
+      await uow.getRepo(TransactionItemsRepository).update(transactionItem.id, transactionItem);
+
+      await uow.getRepo(TransactionItemsRepository).create({
+        accountId,
+        amount: transactionItem.amount,
+        date: transactionItem.date,
+        description: transactionItem.description,
+        transactionId: transactionItem.transactionId,
+        type: transactionItem.type === 'CREDIT' ? 'DEBIT' : 'CREDIT',
+      });
+    });
 
     return true;
   },
