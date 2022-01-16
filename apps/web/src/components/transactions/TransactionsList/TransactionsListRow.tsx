@@ -22,16 +22,18 @@ export const TransactionsListRow: VFC<TransactionsListRowProps> = ({ transaction
       items: transactionItem.transaction?.items.map((item) => ({
         id: item.id,
         accountId: item.account.id,
-        creditAmount: item.type === 'CREDIT' ? item.amount.toFixed(2) : '',
-        debitAmount: item.type === 'DEBIT' ? item.amount.toFixed(2) : '',
+        creditAmount: item.amount.gte(0) ? item.amount.toFixed(2) : '',
+        debitAmount: item.amount.lt(0) ? item.amount.mul(-1).toFixed(2) : '',
         date: item.date,
         description: item.description ?? '',
       })) ?? [
         {
           id: transactionItem.id,
           accountId: transactionItem.account.id,
-          creditAmount: transactionItem.type === 'CREDIT' ? transactionItem.amount.toFixed(2) : '',
-          debitAmount: transactionItem.type === 'DEBIT' ? transactionItem.amount.toFixed(2) : '',
+          creditAmount: transactionItem.amount.gte(0) ? transactionItem.amount.toFixed(2) : '',
+          debitAmount: transactionItem.amount.lt(0)
+            ? transactionItem.amount.mul(-1).toFixed(2)
+            : '',
           date: transactionItem.date,
           description: transactionItem.description ?? '',
         },
@@ -61,7 +63,15 @@ export const TransactionsListRow: VFC<TransactionsListRowProps> = ({ transaction
         <TableCell>{transactionItem.account.name}</TableCell>
         <ReconciledAccountCell transactionItem={transactionItem} />
         <TableCell>
-          {transactionItem.amount.mul(transactionItem.type === 'CREDIT' ? -1 : 1).toFixed(2)}
+          {transactionItem.amount.lt(0) && (
+            <span style={{ color: 'green' }}>{transactionItem.amount.mul(-1).toFixed(2)}</span>
+          )}
+          {transactionItem.amount.eq(0) && (
+            <span style={{ color: 'black' }}>{transactionItem.amount.toFixed(2)}</span>
+          )}
+          {transactionItem.amount.gt(0) && (
+            <span style={{ color: 'red' }}>{transactionItem.amount.toFixed(2)}</span>
+          )}
         </TableCell>
         <TableCell>
           <Button onClick={launchEditorModal}>Edit</Button>

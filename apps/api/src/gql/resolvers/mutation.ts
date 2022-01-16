@@ -1,4 +1,4 @@
-import { AccountTypeEnum, TransactionItemTypeEnum } from '@sprice237/accounting-gql';
+import { AccountTypeEnum } from '@sprice237/accounting-gql';
 import {
   AccountsRepository,
   TransactionsRepository,
@@ -157,7 +157,6 @@ export const resolvers: AppResolvers['Mutation'] = {
       ...transactionItem,
       account: undefined!,
       transaction: undefined!,
-      type: transactionItem.type as TransactionItemTypeEnum,
     };
   },
   async updateTransactionItem(_, { transactionItemId, input }) {
@@ -178,7 +177,6 @@ export const resolvers: AppResolvers['Mutation'] = {
       ...transactionItem,
       account: undefined!,
       transaction: undefined!,
-      type: transactionItem.type as TransactionItemTypeEnum,
     };
   },
   async deleteTransactionItem(_, { transactionItemId }) {
@@ -252,11 +250,10 @@ export const resolvers: AppResolvers['Mutation'] = {
 
       await uow.getRepo(TransactionItemsRepository).create({
         accountId,
-        amount: transactionItem.amount,
+        amount: transactionItem.amount.mul(-1),
         date: transactionItem.date,
         description: transactionItem.description,
         transactionId: transactionItem.transactionId,
-        type: transactionItem.type === 'CREDIT' ? 'DEBIT' : 'CREDIT',
       });
     });
 

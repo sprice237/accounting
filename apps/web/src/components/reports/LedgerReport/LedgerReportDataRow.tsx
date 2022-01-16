@@ -3,7 +3,6 @@ import formatDate from 'date-fns/format';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import {
-  TransactionItemTypeEnum,
   TransactionItemsReportTransactionItemFragment,
   useDeleteTransactionItemMutation,
 } from '@sprice237/accounting-gql';
@@ -28,16 +27,18 @@ export const LedgerReportDataRow: VFC<LedgerReportDataRowProps> = ({ transaction
       items: transactionItem.transaction?.items.map((item) => ({
         id: item.id,
         accountId: item.account.id,
-        creditAmount: item.type === 'CREDIT' ? item.amount.toFixed(2) : '',
-        debitAmount: item.type === 'DEBIT' ? item.amount.toFixed(2) : '',
+        creditAmount: item.amount.gte(0) ? item.amount.toFixed(2) : '',
+        debitAmount: item.amount.lt(0) ? item.amount.mul(-1).toFixed(2) : '',
         date: item.date,
         description: item.description ?? '',
       })) ?? [
         {
           id: transactionItem.id,
           accountId: transactionItem.account.id,
-          creditAmount: transactionItem.type === 'CREDIT' ? transactionItem.amount.toFixed(2) : '',
-          debitAmount: transactionItem.type === 'DEBIT' ? transactionItem.amount.toFixed(2) : '',
+          creditAmount: transactionItem.amount.gte(0) ? transactionItem.amount.toFixed(2) : '',
+          debitAmount: transactionItem.amount.lt(0)
+            ? transactionItem.amount.mul(-1).toFixed(2)
+            : '',
           date: transactionItem.date,
           description: transactionItem.description ?? '',
         },
@@ -72,13 +73,9 @@ export const LedgerReportDataRow: VFC<LedgerReportDataRowProps> = ({ transaction
       <TableRow>
         <TableCell>{formatDate(transactionItem.date, 'MM/dd/yyyy')}</TableCell>
         <TableCell>
-          {transactionItem.type === TransactionItemTypeEnum.Debit &&
-            transactionItem.amount.toFixed(2)}
+          {transactionItem.amount.lt(0) && transactionItem.amount.mul(-1).toFixed(2)}
         </TableCell>
-        <TableCell>
-          {transactionItem.type === TransactionItemTypeEnum.Credit &&
-            transactionItem.amount.toFixed(2)}
-        </TableCell>
+        <TableCell>{transactionItem.amount.gte(0) && transactionItem.amount.toFixed(2)}</TableCell>
         <TableCell>{transactionItem.runningBalance.toFixed(2)}</TableCell>
         <TableCell>
           {(() => {

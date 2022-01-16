@@ -8,6 +8,5 @@ fragment TransactionItem on TransactionItem {
   }
   date
   amount
-  type
   description
 }

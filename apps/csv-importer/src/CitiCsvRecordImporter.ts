@@ -78,16 +78,18 @@ export class CitiCsvRecordImporter {
       const dateTimeStr = `${year}-${month}-${day}T12:00:00Z`;
       const date = new Date(dateTimeStr);
 
-      // in the CSV, debit and credit are used in opposite of a liability account
-      const transactionType = creditStr !== '' ? 'DEBIT' : 'CREDIT';
-      const amount = creditStr !== '' ? Big(creditStr).mul(-1) : Big(debitStr);
+      // in the CSV, purchases are debits and are positive, and applied payments are credits and are negative
+      // we need purchases to correspond to credits and therefore be positive
+      // we need applied payments to correspond to debits and therefore be negative
+      // the CSV's debit and credit columns are labelled backwards, but because the numbers are the right
+      // sign we can ignore the label and just add them together
+      const amount = Big(creditStr || '0').add(Big(debitStr || '0'));
 
       const transactionItemCreateInput: Omit<TransactionItem, 'id'> = {
         accountId: this.accountId,
         transactionId: null,
         date,
         amount,
-        type: transactionType,
         description,
       };
 

@@ -1,5 +1,5 @@
 import Big from 'big.js';
-import { AccountTypeEnum, TransactionItemTypeEnum } from '@sprice237/accounting-gql';
+import { AccountTypeEnum } from '@sprice237/accounting-gql';
 import {
   AccountsRepository,
   TransactionsRepository,
@@ -62,7 +62,6 @@ export const resolvers: AppResolvers['Query'] = {
         ...transactionItem,
         account: undefined!,
         transaction: undefined!,
-        type: transactionItem.type as TransactionItemTypeEnum,
       })),
       nextPageToken,
     };
@@ -76,7 +75,6 @@ export const resolvers: AppResolvers['Query'] = {
       ...transactionItem,
       account: undefined!,
       transaction: undefined!,
-      type: transactionItem.type as TransactionItemTypeEnum,
     }));
   },
   async transactionItemsReportForAccount(_, { input: { accountId, startDate, endDate } }) {
@@ -100,7 +98,6 @@ export const resolvers: AppResolvers['Query'] = {
         ...transactionItem,
         account: undefined!,
         transaction: undefined!,
-        type: transactionItem.type as TransactionItemTypeEnum,
       })),
       sumDebits,
       sumCredits,

@@ -66,7 +66,7 @@ export class AllyCsvRecordImporter {
         throw new Error(`invalid data encountered at row ${dataRowIndex + 2}`);
       }
 
-      const [dateStr, timeStr, amountStr, type, description] = dataRow as [
+      const [dateStr, timeStr, amountStr, , description] = dataRow as [
         string,
         string,
         string,
@@ -76,15 +76,15 @@ export class AllyCsvRecordImporter {
 
       const dateTimeStr = `${dateStr}T${timeStr}Z`;
       const date = new Date(dateTimeStr);
-      const transactionType = type === 'Withdrawal' ? 'CREDIT' : 'DEBIT';
-      const amount = Big(amountStr).mul(type === 'Withdrawal' ? -1 : 1);
+      // in the CSV, deposits are positive and withdrawals are negative
+      // we need deposits to correspond to debits (negative) and withdrawals to correspond to credits (positive), so we need to invert
+      const amount = Big(amountStr).mul(-1);
 
       const transactionItemCreateInput: Omit<TransactionItem, 'id'> = {
         accountId: this.accountId,
         transactionId: null,
         date,
         amount,
-        type: transactionType,
         description,
       };
 

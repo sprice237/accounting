@@ -5,6 +5,5 @@ fragment ShallowTransactionItem on TransactionItem {
   }
   date
   amount
-  type
   description
 }

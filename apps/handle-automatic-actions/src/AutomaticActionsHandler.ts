@@ -186,9 +186,8 @@ export class AutomaticActionsHandler {
       await this.uow.getRepo(TransactionItemsRepository).create({
         transactionId: transaction.id,
         accountId: account.id,
-        type: transactionItem.type === 'CREDIT' ? 'DEBIT' : 'CREDIT',
         date: transactionItem.date,
-        amount: transactionItem.amount,
+        amount: transactionItem.amount.mul(-1),
         description: transactionItem.description,
       });
     });
@@ -239,7 +238,7 @@ export class AutomaticActionsHandler {
       },
       {
         filterType: 'transactionItemType',
-        transactionItemType: transactionItem.type === 'CREDIT' ? 'DEBIT' : 'CREDIT',
+        transactionItemType: transactionItem.amount.gte(0) ? 'DEBIT' : 'CREDIT',
       },
       {
         filterType: 'amount',

@@ -1,4 +1,3 @@
-import { TransactionItemTypeEnum } from '@sprice237/accounting-gql';
 import { TransactionItemsRepository, UnitOfWork } from '@sprice237/accounting-db';
 
 import { AppResolvers } from '.';
@@ -13,7 +12,6 @@ export const resolvers: AppResolvers['Transaction'] = {
       ...transactionItem,
       account: undefined!,
       transaction: undefined!,
-      type: transactionItem.type as TransactionItemTypeEnum,
     }));
   },
 };

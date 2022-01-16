@@ -185,7 +185,7 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
 
     const knexQ = q.toKnexQuery().select({
       runningBalance: this.uow.knexInstance.raw(
-        "SUM(amount * (CASE WHEN type = 'DEBIT' THEN -1 ELSE 1 END)) OVER (PARTITION BY account_id ORDER BY date)"
+        'SUM(amount) OVER (PARTITION BY account_id ORDER BY date)'
       ),
     });
 
@@ -219,10 +219,10 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       .clearSelect()
       .select({
         sumDebits: this.uow.knexInstance.raw(
-          "COALESCE(SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END), 0)"
+          'COALESCE(SUM(CASE WHEN amount < 0 THEN (amount * -1) ELSE 0 END), 0)'
         ),
         sumCredits: this.uow.knexInstance.raw(
-          "COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END), 0)"
+          'COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0)'
         ),
       });
 
@@ -250,10 +250,10 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       )
       .select({
         sumDebits: this.uow.knexInstance.raw(
-          "COALESCE(SUM(CASE WHEN type = 'DEBIT' THEN amount ELSE 0 END), 0)"
+          'COALESCE(SUM(CASE WHEN amount < 0 THEN amount * -1 ELSE 0 END), 0)'
         ),
         sumCredits: this.uow.knexInstance.raw(
-          "COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END), 0)"
+          'COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0)'
         ),
       });
 
@@ -337,17 +337,12 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       .orderBy('ancestorAccount.name')
       .select('ancestorAccount.*', {
         descendantsSumDebits: this.uow.knexInstance.raw(
-          "coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
-          'transactionItem.type'
+          'coalesce(sum(case when amount < 0 then amount * -1 else 0 end), 0)'
         ),
         descendantsSumCredits: this.uow.knexInstance.raw(
-          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0)",
-          'transactionItem.type'
+          'coalesce(sum(case when amount > 0 then amount else 0 end), 0)'
         ),
-        descendantsBalance: this.uow.knexInstance.raw(
-          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0) - coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
-          ['transactionItem.type', 'transactionItem.type']
-        ),
+        descendantsBalance: this.uow.knexInstance.raw('coalesce(sum(amount), 0)'),
       });
 
     if (accountTypes) {
@@ -397,20 +392,13 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       .orderBy('q.name')
       .select('q.*', {
         sumDebits: this.uow.knexInstance.raw(
-          "coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
-          'outerTransactionItem.type'
+          'coalesce(sum(case when amount < 0 then amount else 0 end), 0)'
         ),
         sumCredits: this.uow.knexInstance.raw(
-          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0)",
-          'outerTransactionItem.type'
+          'coalesce(sum(case when amount > 0 then amount else 0 end), 0)'
         ),
-        balance: this.uow.knexInstance.raw(
-          "coalesce(sum(case ?? when 'CREDIT' then amount else 0 end), 0) - coalesce(sum(case ?? when 'DEBIT' then amount else 0 end), 0)",
-          ['outerTransactionItem.type', 'outerTransactionItem.type']
-        ),
+        balance: this.uow.knexInstance.raw('coalesce(sum(amount), 0)'),
       });
-
-    console.log(outerQ.toSQL().sql);
 
     const results = (await outerQ) as Array<
       Account & {
@@ -446,7 +434,11 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
           q.where('amount', NumericFilterTypeOperators[filter.op], filter.amount.toString());
           break;
         case 'transactionItemType':
-          q.where({ type: filter.transactionItemType });
+          if (filter.transactionItemType === 'DEBIT') {
+            q.where('amount', '<', 0);
+          } else {
+            q.where('amount', '>=', 0);
+          }
           break;
         case 'hasTransaction':
           if (filter.hasTransaction) {

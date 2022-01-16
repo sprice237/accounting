@@ -4,8 +4,6 @@ import { Account, AccountModel } from './account';
 import { BaseModelWithTimestamps, ModelObjectWithoutTimestamps } from './baseModelWithTimestamps';
 import { Transaction, TransactionModel } from './transaction';
 
-export type TransactionItemType = 'DEBIT' | 'CREDIT';
-
 export class TransactionItemModel extends BaseModelWithTimestamps {
   static override tableName = 'transactionItems';
 
@@ -34,7 +32,6 @@ export class TransactionItemModel extends BaseModelWithTimestamps {
   transactionId!: string | null;
   accountId!: string;
   date!: Date;
-  type!: TransactionItemType;
   amount!: Big;
   description!: string | null;
 }

@@ -13,7 +13,6 @@ type TransactionItemsReportTransactionItem {
   accountId: ID!
   account: Account!
   date: Date!
-  type: TransactionItemTypeEnum!
   amount: Money!
   runningBalance: Money!
   description: String

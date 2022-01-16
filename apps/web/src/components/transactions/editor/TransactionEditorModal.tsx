@@ -5,7 +5,6 @@ import DialogActions from '@mui/material/DialogActions';
 import {
   CreateTransactionInput,
   TransactionItemForTransactionInput,
-  TransactionItemTypeEnum,
   UpdateTransactionInput,
   useCreateTransactionMutation,
   useUpdateTransactionMutation,
@@ -35,11 +34,7 @@ export const TransactionEditorModal: VFC<TransactionEditorModalProps> = ({
               id: item.id,
               accountId: item.accountId,
               date: item.date,
-              type:
-                item.creditAmount !== ''
-                  ? TransactionItemTypeEnum.Credit
-                  : TransactionItemTypeEnum.Debit,
-              amount: item.creditAmount !== '' ? Big(item.creditAmount) : Big(item.debitAmount),
+              amount: Big(item.creditAmount || 0).sub(Big(item.debitAmount || 0)),
               description: item.description,
             }
     );
