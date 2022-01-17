@@ -1,3 +1,0 @@
-mutation CategorizeTransactionItem($transactionItemId: ID!, $accountId: ID!) {
-  categorizeTransactionItem(transactionItemId: $transactionItemId, accountId: $accountId)
-}

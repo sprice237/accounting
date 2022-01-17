@@ -12,6 +12,8 @@ export type TransactionsListContextSearchParams = {
 
 export type TransactionsListContext = {
   transactionItems: TransactionItemFragment[] | undefined;
+  selectedTransactionItems: TransactionItemFragment[];
+  setSelectedTransactionItems: Dispatch<SetStateAction<TransactionItemFragment[]>>;
   loadNextPage: (() => void) | null;
   searchParams: TransactionsListContextSearchParams;
   setSearchParams: Dispatch<SetStateAction<TransactionsListContextSearchParams>>;
@@ -19,6 +21,8 @@ export type TransactionsListContext = {
 
 const transactionsListContext = createContext<TransactionsListContext>({
   transactionItems: [],
+  selectedTransactionItems: [],
+  setSelectedTransactionItems: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   loadNextPage: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   searchParams: {},
   setSearchParams: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
@@ -29,6 +33,9 @@ export const useTransactionsListContext = (): TransactionsListContext =>
 
 export const TransactionsListContextProvider: FC = ({ children }) => {
   const [searchParams, setSearchParams] = useState<TransactionsListContextSearchParams>({});
+  const [selectedTransactionItems, setSelectedTransactionItems] = useState<
+    TransactionItemFragment[]
+  >([]);
 
   const { data, fetchMore } = useTransactionItemsQuery({
     variables: {
@@ -71,6 +78,8 @@ export const TransactionsListContextProvider: FC = ({ children }) => {
 
   const contextValue = {
     transactionItems,
+    selectedTransactionItems,
+    setSelectedTransactionItems,
     loadNextPage,
     searchParams,
     setSearchParams,

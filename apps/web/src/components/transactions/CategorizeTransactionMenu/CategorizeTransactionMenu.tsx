@@ -2,60 +2,45 @@ import { useState, VFC } from 'react';
 import Popover from '@mui/material/Popover';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import {
-  AccountFragment,
-  AccountTypeEnum,
-  TransactionItemFragment,
-  useCategorizeTransactionItemMutation,
-} from '@sprice237/accounting-gql';
+import { AccountTypeEnum, AccountFragment } from '@sprice237/accounting-gql';
 import { CategorizeTransactionMenuAccountList } from './CategorizeTransactionMenuAccountList';
 
 type CategorizeTransactionMenuProps = {
-  transactionItem: TransactionItemFragment;
   referenceElement: HTMLElement;
-  onLaunchEditor: () => void;
+  onLaunchEditor?: () => void;
+  onSelect: (account: AccountFragment | null) => void;
   onClose: () => void;
 };
 
 export const CategorizeTransactionMenu: VFC<CategorizeTransactionMenuProps> = ({
-  transactionItem,
   referenceElement,
   onLaunchEditor,
+  onSelect,
   onClose,
 }) => {
   const [accountType, setSelectedAccountType] = useState<AccountTypeEnum>();
   const clearSelectedAccountType = () => setSelectedAccountType(undefined);
 
-  const [categorizeTransactionItem] = useCategorizeTransactionItemMutation();
-
-  const onAccountSelected = async (account: AccountFragment) => {
-    await categorizeTransactionItem({
-      variables: {
-        transactionItemId: transactionItem.id,
-        accountId: account.id,
-      },
-    });
-    onClose();
-  };
-
   return (
     <Popover anchorEl={referenceElement} open onClose={onClose}>
       {!accountType && (
         <MenuList>
+          <MenuItem onClick={onClose}>&lt; Cancel</MenuItem>
+          <MenuItem onClick={() => onSelect(null)}>Uncategorized</MenuItem>
           <MenuItem onClick={() => setSelectedAccountType(AccountTypeEnum.Income)}>
             Income &gt;
           </MenuItem>
           <MenuItem onClick={() => setSelectedAccountType(AccountTypeEnum.Expense)}>
             Expense &gt;
           </MenuItem>
-          <MenuItem onClick={onLaunchEditor}>Edit</MenuItem>
+          {onLaunchEditor && <MenuItem onClick={onLaunchEditor}>Edit</MenuItem>}
         </MenuList>
       )}
       {accountType && (
         <CategorizeTransactionMenuAccountList
           accountType={accountType}
           onGoBack={clearSelectedAccountType}
-          onAccountSelected={onAccountSelected}
+          onAccountSelected={onSelect}
         />
       )}
     </Popover>

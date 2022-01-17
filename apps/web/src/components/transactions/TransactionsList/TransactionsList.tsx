@@ -1,4 +1,5 @@
 import { VFC } from 'react';
+import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
@@ -11,12 +12,29 @@ import { TransactionsListRow } from './TransactionsListRow';
 import { useTransactionsListContext } from './transactionsListContext';
 
 export const TransactionsList: VFC = () => {
-  const { transactionItems, loadNextPage } = useTransactionsListContext();
+  const { transactionItems, selectedTransactionItems, setSelectedTransactionItems, loadNextPage } =
+    useTransactionsListContext();
+
+  const isSelectAllCheckboxChecked = transactionItems?.length === selectedTransactionItems.length;
+
+  const handleSelectAllCheckboxChange = (checked: boolean) => {
+    if (checked) {
+      setSelectedTransactionItems([...(transactionItems ?? [])]);
+    } else {
+      setSelectedTransactionItems([]);
+    }
+  };
 
   return (
     <Table>
       <TableHead>
         <TableRow>
+          <TableCell>
+            <Checkbox
+              checked={isSelectAllCheckboxChecked}
+              onChange={(e) => handleSelectAllCheckboxChange(e.target.checked)}
+            />
+          </TableCell>
           <TableCell>Date</TableCell>
           <TableCell>Description</TableCell>
           <TableCell>Account</TableCell>
@@ -26,13 +44,23 @@ export const TransactionsList: VFC = () => {
       </TableHead>
       <TableBody>
         {(transactionItems ?? []).map((transactionItem) => (
-          <TransactionsListRow key={transactionItem.id} transactionItem={transactionItem} />
+          <TransactionsListRow
+            key={transactionItem.id}
+            transactionItem={transactionItem}
+            isSelected={selectedTransactionItems.includes(transactionItem)}
+            onSelectionChanged={(selected) => {
+              setSelectedTransactionItems((oldSelectedTransactionItems) => [
+                ...oldSelectedTransactionItems.filter(({ id }) => id !== transactionItem.id),
+                ...(selected ? [transactionItem] : []),
+              ]);
+            }}
+          />
         ))}
       </TableBody>
       {loadNextPage && (
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={6}>
+            <TableCell colSpan={7}>
               <Grid container justifyContent="center">
                 <Button onClick={loadNextPage}>More</Button>
               </Grid>

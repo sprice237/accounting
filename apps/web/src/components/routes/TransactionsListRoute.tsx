@@ -4,6 +4,7 @@ import { CollapsibleCard as _CollapsibleCard } from '@sprice237/accounting-ui';
 import { TransactionsList } from '$cmp/transactions/TransactionsList';
 import { TransactionsListContextProvider } from '$cmp/transactions/TransactionsList';
 import { TransactionsListSearchParams } from '$cmp/transactions/TransactionsList';
+import { TransactionsListCategorization } from '$cmp/transactions/TransactionsList';
 import styled from 'styled-components';
 
 const CollapsibleCard = styled(_CollapsibleCard)`
@@ -16,6 +17,9 @@ export const TransactionsListRoute: VFC = () => {
       <Stack style={{ width: '100%' }}>
         <CollapsibleCard title="Search">
           <TransactionsListSearchParams />
+        </CollapsibleCard>
+        <CollapsibleCard title="Selected">
+          <TransactionsListCategorization />
         </CollapsibleCard>
         <CollapsibleCard title="Transactions" initialOpen>
           <TransactionsList />

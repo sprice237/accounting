@@ -190,71 +190,126 @@ export const resolvers: AppResolvers['Mutation'] = {
 
     return true;
   },
-  async categorizeTransactionItem(_, { transactionItemId, accountId }, { assertPortfolio }) {
+  async categorizeTransactionItems(_, { transactionItemIds, accountId }, { assertPortfolio }) {
     const { id: portfolioId } = assertPortfolio();
 
     const uow = new UnitOfWork();
     await uow.executeTransaction(async () => {
-      const transactionItem = await uow
-        .getRepo(TransactionItemsRepository)
-        .getById(transactionItemId);
-
-      if (!transactionItem) {
-        throw new Error('not found');
-      }
-
-      if (transactionItem.transactionId) {
-        const transactionId = transactionItem.transactionId;
-
-        const transactionItemsForTransaction = await uow
+      for (const transactionItemId of transactionItemIds) {
+        const transactionItem = await uow
           .getRepo(TransactionItemsRepository)
-          .getAllForTransaction(transactionId);
+          .getById(transactionItemId);
 
-        const otherTransactionItems = transactionItemsForTransaction.filter(
-          ({ id }) => id !== transactionItem.id
-        );
-
-        if (otherTransactionItems.length > 1) {
-          throw new Error('unsupported for complex transactions');
+        if (!transactionItem) {
+          throw new Error('not found');
         }
 
-        const [otherTransactionItem] = otherTransactionItems;
+        if (transactionItem.transactionId) {
+          const transactionId = transactionItem.transactionId;
 
-        if (otherTransactionItem) {
-          const account = await uow
-            .getRepo(AccountsRepository)
-            .getById(otherTransactionItem.accountId);
+          const transactionItemsForTransaction = await uow
+            .getRepo(TransactionItemsRepository)
+            .getAllForTransaction(transactionId);
 
-          assert(account);
+          const otherTransactionItems = transactionItemsForTransaction.filter(
+            ({ id }) => id !== transactionItem.id
+          );
 
-          if (account.type !== 'INCOME' && account.type !== 'EXPENSE') {
-            throw new Error('unsupported for account types other than INCOME and EXPENSE');
+          if (otherTransactionItems.length > 1) {
+            throw new Error('unsupported for complex transactions');
           }
 
-          await uow.getRepo(TransactionItemsRepository).delete(otherTransactionItem.id);
+          const [otherTransactionItem] = otherTransactionItems;
+
+          if (otherTransactionItem) {
+            const account = await uow
+              .getRepo(AccountsRepository)
+              .getById(otherTransactionItem.accountId);
+
+            assert(account);
+
+            if (account.type !== 'INCOME' && account.type !== 'EXPENSE') {
+              throw new Error('unsupported for account types other than INCOME and EXPENSE');
+            }
+
+            await uow.getRepo(TransactionItemsRepository).delete(otherTransactionItem.id);
+          }
+
+          transactionItem.transactionId = null;
+          await uow.getRepo(TransactionItemsRepository).update(transactionItem.id, transactionItem);
+
+          await uow.getRepo(TransactionsRepository).delete(transactionId);
         }
 
-        transactionItem.transactionId = null;
+        const transaction = await uow.getRepo(TransactionsRepository).create({
+          portfolioId,
+        });
+
+        transactionItem.transactionId = transaction.id;
+
         await uow.getRepo(TransactionItemsRepository).update(transactionItem.id, transactionItem);
 
-        await uow.getRepo(TransactionsRepository).delete(transactionId);
+        await uow.getRepo(TransactionItemsRepository).create({
+          accountId,
+          amount: transactionItem.amount.mul(-1),
+          date: transactionItem.date,
+          description: transactionItem.description,
+          transactionId: transactionItem.transactionId,
+        });
       }
+    });
 
-      const transaction = await uow.getRepo(TransactionsRepository).create({
-        portfolioId,
-      });
+    return true;
+  },
+  async uncategorizeTransactionItems(_, { transactionItemIds }) {
+    const uow = new UnitOfWork();
+    await uow.executeTransaction(async () => {
+      for (const transactionItemId of transactionItemIds) {
+        const transactionItem = await uow
+          .getRepo(TransactionItemsRepository)
+          .getById(transactionItemId);
 
-      transactionItem.transactionId = transaction.id;
+        if (!transactionItem) {
+          throw new Error('not found');
+        }
 
-      await uow.getRepo(TransactionItemsRepository).update(transactionItem.id, transactionItem);
+        if (transactionItem.transactionId) {
+          const transactionId = transactionItem.transactionId;
 
-      await uow.getRepo(TransactionItemsRepository).create({
-        accountId,
-        amount: transactionItem.amount.mul(-1),
-        date: transactionItem.date,
-        description: transactionItem.description,
-        transactionId: transactionItem.transactionId,
-      });
+          const transactionItemsForTransaction = await uow
+            .getRepo(TransactionItemsRepository)
+            .getAllForTransaction(transactionId);
+
+          const otherTransactionItems = transactionItemsForTransaction.filter(
+            ({ id }) => id !== transactionItem.id
+          );
+
+          if (otherTransactionItems.length > 1) {
+            throw new Error('unsupported for complex transactions');
+          }
+
+          const [otherTransactionItem] = otherTransactionItems;
+
+          if (otherTransactionItem) {
+            const account = await uow
+              .getRepo(AccountsRepository)
+              .getById(otherTransactionItem.accountId);
+
+            assert(account);
+
+            if (account.type !== 'INCOME' && account.type !== 'EXPENSE') {
+              throw new Error('unsupported for account types other than INCOME and EXPENSE');
+            }
+
+            await uow.getRepo(TransactionItemsRepository).delete(otherTransactionItem.id);
+          }
+
+          transactionItem.transactionId = null;
+          await uow.getRepo(TransactionItemsRepository).update(transactionItem.id, transactionItem);
+
+          await uow.getRepo(TransactionsRepository).delete(transactionId);
+        }
+      }
     });
 
     return true;

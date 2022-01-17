@@ -1,5 +1,6 @@
 import { useState, VFC } from 'react';
 import formatDate from 'date-fns/format';
+import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { TransactionItemFragment } from '@sprice237/accounting-gql';
@@ -9,9 +10,15 @@ import { ReconciledAccountCell } from './ReconciledAccountCell';
 
 type TransactionsListRowProps = {
   transactionItem: TransactionItemFragment;
+  isSelected: boolean;
+  onSelectionChanged: (selection: boolean) => void;
 };
 
-export const TransactionsListRow: VFC<TransactionsListRowProps> = ({ transactionItem }) => {
+export const TransactionsListRow: VFC<TransactionsListRowProps> = ({
+  transactionItem,
+  isSelected,
+  onSelectionChanged,
+}) => {
   const [isEditorModalVisible, showEditorModal, hideEditorModal] = useFlagState();
   const [transactionEditorModalInitialValue, setTransactionEditorModalInitialValue] =
     useState<TransactionEditorModel>();
@@ -58,6 +65,9 @@ export const TransactionsListRow: VFC<TransactionsListRowProps> = ({ transaction
         />
       )}
       <TableRow>
+        <TableCell>
+          <Checkbox checked={isSelected} onChange={(e) => onSelectionChanged(e.target.checked)} />
+        </TableCell>
         <TableCell>{formatDate(transactionItem.date, 'MM/dd/yyyy')}</TableCell>
         <TableCell>{transactionItem.description}</TableCell>
         <TableCell>{transactionItem.account.name}</TableCell>

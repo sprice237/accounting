@@ -1,0 +1,3 @@
+mutation UncategorizeTransactionItems($transactionItemIds: [ID!]!) {
+  uncategorizeTransactionItems(transactionItemIds: $transactionItemIds)
+}

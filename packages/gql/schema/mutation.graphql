@@ -6,5 +6,6 @@ type Mutation {
   createTransactionItem(input: CreateTransactionItemInput!): TransactionItem!
   updateTransactionItem(transactionItemId: ID!, input: UpdateTransactionItemInput!): TransactionItem!
   deleteTransactionItem(transactionItemId: ID!): Boolean!
-  categorizeTransactionItem(transactionItemId: ID!, accountId: ID!): Boolean!
+  categorizeTransactionItems(transactionItemIds: [ID!]!, accountId: ID!): Boolean!
+  uncategorizeTransactionItems(transactionItemIds: [ID!]!): Boolean!
 }

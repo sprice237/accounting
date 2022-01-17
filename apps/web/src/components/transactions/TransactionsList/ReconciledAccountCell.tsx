@@ -1,12 +1,17 @@
 import { useState, VFC } from 'react';
 import TableCell from '@mui/material/TableCell';
-import { TransactionItemFragment } from '@sprice237/accounting-gql';
+import {
+  AccountFragment,
+  TransactionItemFragment,
+  useCategorizeTransactionItemsMutation,
+  useUncategorizeTransactionItemsMutation,
+} from '@sprice237/accounting-gql';
 import { CategorizeTransactionMenu } from '$cmp/transactions/CategorizeTransactionMenu';
 import { useFlagState } from '@sprice237/accounting-ui';
 
 const getReconciledAccountName = (transactionItem: TransactionItemFragment) => {
   if (!transactionItem.transaction) {
-    return 'Unreconciled';
+    return 'Uncategorized';
   }
 
   const otherTransactionItems = transactionItem.transaction.items.filter(
@@ -35,6 +40,27 @@ export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({
   const [isMenuVisible, showMenu, hideMenu] = useFlagState();
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
 
+  const [categorizeTransactionItems] = useCategorizeTransactionItemsMutation();
+  const [uncategorizeTransactionItems] = useUncategorizeTransactionItemsMutation();
+
+  const onAccountSelected = async (account: AccountFragment | null) => {
+    if (account) {
+      await categorizeTransactionItems({
+        variables: {
+          transactionItemIds: [transactionItem.id],
+          accountId: account.id,
+        },
+      });
+    } else {
+      await uncategorizeTransactionItems({
+        variables: {
+          transactionItemIds: [transactionItem.id],
+        },
+      });
+    }
+    hideMenu();
+  };
+
   const launchEditor = () => {
     hideMenu();
     onLaunchEditor();
@@ -48,8 +74,8 @@ export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({
       {isMenuVisible && referenceElement && (
         <CategorizeTransactionMenu
           referenceElement={referenceElement}
-          transactionItem={transactionItem}
           onLaunchEditor={launchEditor}
+          onSelect={onAccountSelected}
           onClose={hideMenu}
         />
       )}
