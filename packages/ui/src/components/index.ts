@@ -4,6 +4,7 @@ export * from './sidebar';
 
 export * from './AppContentWrapper';
 export * from './CenterContent';
+export * from './CollapsibleCard';
 export * from './DrawerWrapper';
 export * from './LoadingModal';
 export * from './MainContentWrapper';

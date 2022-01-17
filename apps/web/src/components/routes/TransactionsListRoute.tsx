@@ -1,27 +1,25 @@
 import { VFC } from 'react';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
 import Stack from '@mui/material/Stack';
+import { CollapsibleCard as _CollapsibleCard } from '@sprice237/accounting-ui';
 import { TransactionsList } from '$cmp/transactions/TransactionsList';
 import { TransactionsListContextProvider } from '$cmp/transactions/TransactionsList';
 import { TransactionsListSearchParams } from '$cmp/transactions/TransactionsList';
+import styled from 'styled-components';
+
+const CollapsibleCard = styled(_CollapsibleCard)`
+  margin: 15px;
+`;
 
 export const TransactionsListRoute: VFC = () => {
   return (
     <TransactionsListContextProvider>
       <Stack style={{ width: '100%' }}>
-        <Card style={{ margin: '15px' }}>
-          <CardHeader title="Search" />
-          <CardContent>
-            <TransactionsListSearchParams />
-          </CardContent>
-        </Card>
-        <Card style={{ margin: '15px' }}>
-          <CardContent>
-            <TransactionsList />
-          </CardContent>
-        </Card>
+        <CollapsibleCard title="Search">
+          <TransactionsListSearchParams />
+        </CollapsibleCard>
+        <CollapsibleCard title="Transactions" initialOpen>
+          <TransactionsList />
+        </CollapsibleCard>
       </Stack>
     </TransactionsListContextProvider>
   );
