@@ -1,1 +1,0 @@
-export declare const SidebarSection: import("styled-components").StyledComponent<import("@mui/material/OverridableComponent").OverridableComponent<import("@mui/material/Typography").TypographyTypeMap<{}, "span">>, any, {}, never>;
