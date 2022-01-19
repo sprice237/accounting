@@ -1,0 +1,3 @@
+mutation LinkTransactionItems($transactionItemId: ID!, $transactionItemIdToLink: ID!) {
+  linkTransactionItems(transactionItemId: $transactionItemId, transactionItemIdToLink: $transactionItemIdToLink)
+}

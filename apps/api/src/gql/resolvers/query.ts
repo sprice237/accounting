@@ -42,6 +42,7 @@ export const resolvers: AppResolvers['Query'] = {
         endDate,
         sourceAccountIds,
         categoryAccountIds,
+        matchTransactionItemId,
         hasTransaction,
         searchText,
         pageSize,
@@ -62,6 +63,7 @@ export const resolvers: AppResolvers['Query'] = {
         endDate: endDate ?? undefined,
         sourceAccountIds: sourceAccountIds?.length ? sourceAccountIds : undefined,
         categoryAccountIds: categoryAccountIds?.length ? categoryAccountIds : undefined,
+        matchTransactionItemId: matchTransactionItemId ?? undefined,
         hasTransaction: hasTransaction ?? undefined,
         searchText: searchText ?? undefined,
       }

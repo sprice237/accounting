@@ -23,17 +23,16 @@ export const TransactionsListCategorization: VFC = () => {
 
   const onAccountSelected = async (account: AccountFragment | null) => {
     const transactionItemIds = selectedTransactionItems.map(({ id }) => id);
+    await uncategorizeTransactionItems({
+      variables: {
+        transactionItemIds: transactionItemIds,
+      },
+    });
     if (account) {
       await categorizeTransactionItems({
         variables: {
-          transactionItemIds,
+          transactionItemIds: transactionItemIds,
           accountId: account.id,
-        },
-      });
-    } else {
-      await uncategorizeTransactionItems({
-        variables: {
-          transactionItemIds,
         },
       });
     }
@@ -56,7 +55,7 @@ export const TransactionsListCategorization: VFC = () => {
             {isMenuVisible && referenceElement && (
               <CategorizeTransactionMenu
                 referenceElement={referenceElement}
-                onSelect={onAccountSelected}
+                onSelectAccount={onAccountSelected}
                 onClose={hideMenu}
               />
             )}

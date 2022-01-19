@@ -4,10 +4,11 @@ import {
   AccountFragment,
   TransactionItemFragment,
   useCategorizeTransactionItemsMutation,
+  useLinkTransactionItemsMutation,
   useUncategorizeTransactionItemsMutation,
 } from '@sprice237/accounting-gql';
 import { CategorizeTransactionMenu } from '$cmp/transactions/CategorizeTransactionMenu';
-import { useFlagState } from '@sprice237/accounting-ui';
+import { Button, useFlagState } from '@sprice237/accounting-ui';
 
 const getReconciledAccountName = (transactionItem: TransactionItemFragment) => {
   if (!transactionItem.transaction) {
@@ -41,9 +42,19 @@ export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
 
   const [categorizeTransactionItems] = useCategorizeTransactionItemsMutation();
+  const [linkTransactionItems] = useLinkTransactionItemsMutation();
   const [uncategorizeTransactionItems] = useUncategorizeTransactionItemsMutation();
 
+  const onUncategorize = async () => {
+    await uncategorizeTransactionItems({
+      variables: {
+        transactionItemIds: [transactionItem.id],
+      },
+    });
+  };
+
   const onAccountSelected = async (account: AccountFragment | null) => {
+    await onUncategorize();
     if (account) {
       await categorizeTransactionItems({
         variables: {
@@ -51,14 +62,18 @@ export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({
           accountId: account.id,
         },
       });
-    } else {
-      await uncategorizeTransactionItems({
-        variables: {
-          transactionItemIds: [transactionItem.id],
-        },
-      });
     }
     hideMenu();
+  };
+
+  const onTransfer = async (transactionItemToLink: TransactionItemFragment) => {
+    await onUncategorize();
+    await linkTransactionItems({
+      variables: {
+        transactionItemId: transactionItem.id,
+        transactionItemIdToLink: transactionItemToLink.id,
+      },
+    });
   };
 
   const launchEditor = () => {
@@ -68,14 +83,17 @@ export const ReconciledAccountCell: VFC<ReconciledAccountCellProps> = ({
 
   return (
     <TableCell style={{ cursor: 'pointer' }}>
-      <div ref={setReferenceElement} onClick={showMenu}>
+      <Button ref={setReferenceElement} onClick={showMenu} variant="outlined">
         {getReconciledAccountName(transactionItem)}
-      </div>
+      </Button>
       {isMenuVisible && referenceElement && (
         <CategorizeTransactionMenu
+          transactionItem={transactionItem}
           referenceElement={referenceElement}
           onLaunchEditor={launchEditor}
-          onSelect={onAccountSelected}
+          onSelectAccount={onAccountSelected}
+          onSelectTransferTransactionItem={(_transactionItem) => onTransfer(_transactionItem)}
+          onUncategorize={onUncategorize}
           onClose={hideMenu}
         />
       )}

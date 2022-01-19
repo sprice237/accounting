@@ -41,6 +41,7 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
       endDate?: Date;
       sourceAccountIds?: string[];
       categoryAccountIds?: string[];
+      matchTransactionItemId?: string;
       searchText?: string;
       hasTransaction?: boolean;
     },
@@ -114,6 +115,13 @@ export class TransactionItemsRepository extends BaseRepositoryWithDefaultActions
 
     if (filters?.hasTransaction === false) {
       q.whereNull('transactionId');
+    }
+
+    if (filters?.matchTransactionItemId) {
+      const matchTransaction = await this.getById(filters.matchTransactionItemId);
+      if (matchTransaction) {
+        q.where({ amount: matchTransaction.amount.mul(-1) });
+      }
     }
 
     const transactionItemModels = await q;

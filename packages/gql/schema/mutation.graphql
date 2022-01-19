@@ -8,4 +8,5 @@ type Mutation {
   deleteTransactionItem(transactionItemId: ID!): Boolean!
   categorizeTransactionItems(transactionItemIds: [ID!]!, accountId: ID!): Boolean!
   uncategorizeTransactionItems(transactionItemIds: [ID!]!): Boolean!
+  linkTransactionItems(transactionItemId: ID!, transactionItemIdToLink: ID!): Boolean!
 }

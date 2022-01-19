@@ -4,19 +4,19 @@ import MenuItem from '@mui/material/MenuItem';
 import { AccountFragment, AccountTypeEnum, useAccountsQuery } from '@sprice237/accounting-gql';
 
 type CategorizeTransactionMenuAccountListProps = {
-  accountType: AccountTypeEnum;
-  onGoBack: () => void;
+  accountTypes: AccountTypeEnum[];
+  onBack: () => void;
   onAccountSelected: (account: AccountFragment) => void;
 };
 
 export const CategorizeTransactionMenuAccountList: VFC<CategorizeTransactionMenuAccountListProps> =
-  ({ accountType, onGoBack, onAccountSelected }) => {
+  ({ accountTypes, onBack, onAccountSelected }) => {
     const [accountStack, setAccountStack] = useState<AccountFragment[]>([]);
 
     const { data: { accounts } = { accounts: undefined } } = useAccountsQuery({
       variables: {
         input: {
-          types: [accountType],
+          types: accountTypes,
         },
       },
     });
@@ -42,7 +42,7 @@ export const CategorizeTransactionMenuAccountList: VFC<CategorizeTransactionMenu
 
     const goBack = () => {
       if (!accountStack.length) {
-        onGoBack();
+        onBack();
       } else {
         setAccountStack((oldAccountStack) => oldAccountStack.slice(0, -1));
       }

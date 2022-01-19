@@ -45,6 +45,7 @@ input TransactionItemsQueryInput {
   categoryAccountIds: [ID!]
   searchText: String
   hasTransaction: Boolean
+  matchTransactionItemId: ID
   pageSize: Int!
   pageToken: String
 }
