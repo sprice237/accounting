@@ -1,3 +1,4 @@
+import { ModelObject } from 'objection';
 import { BaseModelWithTimestamps, ModelObjectWithoutTimestamps } from './baseModelWithTimestamps';
 
 export type AccountType = 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE';
@@ -12,3 +13,4 @@ export class AccountModel extends BaseModelWithTimestamps {
 }
 
 export type Account = ModelObjectWithoutTimestamps<AccountModel>;
+export type AccountWithTimestamps = ModelObject<AccountModel>;

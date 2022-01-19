@@ -3,10 +3,17 @@ import { Model } from 'objection';
 import { config } from './config';
 import type { BaseRepository } from '$repositories/baseRepository';
 
-const knexInstance = knexConstructor(config);
+let knexInstance = knexConstructor(config);
 Model.knex(knexInstance);
 
 export class UnitOfWork {
+  static setConnectionJson(connectionJson: string): void {
+    knexInstance = knexConstructor({
+      ...config,
+      connection: JSON.parse(connectionJson),
+    });
+    Model.knex(knexInstance);
+  }
   readonly knexInstance = knexInstance;
 
   private _transaction: Knex.Transaction | null = null;
